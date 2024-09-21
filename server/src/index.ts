@@ -1,13 +1,18 @@
-import express from "express";
-import cors from "cors";
+import mongoose from "mongoose";
+import httpServer from "./app";
 
-const app = express();
-app.use(express.json());
-app.use(cors());
-
-app.get("/", (req, res) => {
-  res.send("hello world!");
-});
-
+const dbUrl = "mongodb://localhost/Kalemni";
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.log(`listening on port ${port}`));
+
+const start = async () => {
+  try {
+    await mongoose.connect(dbUrl);
+    console.log("Connected to the database.");
+    await httpServer.listen(port);
+    console.log(`listening on port ${port}...`);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+start();
