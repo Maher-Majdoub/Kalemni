@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import httpServer from "./app";
+import { httpServer } from "./app";
 
 const dbUrl = "mongodb://localhost/Kalemni";
 const port = process.env.PORT || 3000;

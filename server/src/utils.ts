@@ -43,11 +43,15 @@ export const makeToken = (data: object) => {
   return jwt.sign(data, "test");
 };
 
+interface UserData {
+  _id: string;
+}
+
 export const verifyToken = (token: string) => {
   try {
     const decoded = jwt.verify(token, "test");
-    return { isValid: true, data: decoded };
+    return { isValid: true, data: decoded as UserData };
   } catch (ex) {
-    return { isValid: false, data: {} };
+    return { isValid: false, data: {} as UserData };
   }
 };

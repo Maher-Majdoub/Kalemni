@@ -38,7 +38,7 @@ router.get(
       recipientId: {
         $in: [friendId, req.body.user._id],
       },
-    }).sort("-createdAt");
+    }).sort("createdAt");
 
     res.send(messages);
   }

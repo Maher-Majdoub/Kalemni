@@ -20,8 +20,8 @@ const userSchema = new Schema(
       type: [
         {
           _id: { type: mongoose.Types.ObjectId, required: true },
-          first_name: { type: String, required: true },
-          last_name: { type: String, required: true },
+          firstName: { type: String, required: true },
+          lastName: { type: String, required: true },
         },
       ],
       unique: true,
@@ -47,8 +47,8 @@ export const validateAuthUser = (data: object) => {
 export const validateCreateUser = (data: object) => {
   const schema = Joi.object({
     ...userAuthJoiObject,
-    first_name: Joi.string().required(),
-    last_name: Joi.string().required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
   });
 
   return extractJoiErrors(schema.validate(data).error);

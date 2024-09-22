@@ -5,6 +5,8 @@ import { AxiosError } from "axios";
 interface MessageData {
   _id: string;
   content: string;
+  senderId: string;
+  recipientId: string;
   createdAt: Date;
   updatedAt: Date;
 }
