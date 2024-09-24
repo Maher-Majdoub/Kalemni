@@ -1,6 +1,14 @@
-import mongoose, { Schema } from "mongoose";
-import Joi, { required, string } from "joi";
+import mongoose, { Schema, Types } from "mongoose";
+import Joi from "joi";
 import { extractJoiErrors } from "../utils";
+
+export const userSnapshot = {
+  _id: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
+  bio: { type: String },
+  profilePicture: { type: String },
+};
 
 const userSchema = new Schema(
   {
@@ -16,16 +24,12 @@ const userSchema = new Schema(
     },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    friends: {
-      type: [
-        {
-          _id: { type: mongoose.Types.ObjectId, required: true },
-          firstName: { type: String, required: true },
-          lastName: { type: String, required: true },
-        },
-      ],
-      unique: true,
-    },
+    bio: { type: String },
+    birthDate: { type: Date },
+    gender: { type: String, enum: ["m", "f"] },
+    profilePicture: { type: String },
+    friends: { type: [userSnapshot] },
+    friendRequests: { type: [userSnapshot] },
   },
   { timestamps: true }
 );
@@ -51,5 +55,5 @@ export const validateCreateUser = (data: object) => {
     lastName: Joi.string().required(),
   });
 
-  return extractJoiErrors(schema.validate(data).error);
+  return extractJoiErrors(schema.validate(data, { abortEarly: false }).error);
 };

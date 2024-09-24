@@ -3,9 +3,11 @@ import ApiService from "../services/apiService";
 import { AxiosError } from "axios";
 
 interface ProfileData {
-  username: string;
   firstName: string;
   lastName: string;
+  gender?: "m" | "f";
+  birthDate: Date;
+  profilePicture: string;
 }
 
 const useProfile = () => {

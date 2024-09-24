@@ -1,8 +1,14 @@
-ul {
-    list-style: none;
+* {
     padding: 0;
+    margin: 0;
+    box-sizing: border-box;
 }
 
-.right {
-    padding-left: 50px;
+input {
+    outline: none;
+    border: none;
+    width: 100%;
+    padding: 7px 10px;
+    font-size: small;
+    background-color: transparent;
 }

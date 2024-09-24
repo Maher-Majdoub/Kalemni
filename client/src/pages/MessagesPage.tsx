@@ -1,91 +1,108 @@
-import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
-import useMessages from "../hooks/useMessages";
-import { useEffect, useRef, useState } from "react";
-import "../index.css";
+// import { io } from "socket.io-client";
+import { Avatar, Box, Divider, Stack, Typography } from "@mui/material";
+import userTestImage from "../assets/user_test_image.png";
+import ChatBox from "../components/ChatBox";
+import OnlineBadge from "../components/OnlineBadge";
 
-const socket = io("http://localhost:3000", {
-  auth: {
-    authToken: localStorage.getItem("auth-token"),
-  },
-});
+// const socket = io("http://localhost:3000", {
+//   auth: {
+//     authToken: localStorage.getItem("auth-token"),
+//   },
+// });
 
-interface Message {
-  me: boolean;
-  message: string;
-}
+// if (socket) {
+// }
 
-const Messages = () => {
-  const { friendId } = useParams();
-
-  const {
-    messages,
-    isGetMessagesPending,
-    isGetMessagesSuccess,
-    isGetMessagesError,
-    error,
-  } = useMessages(friendId as string);
-
-  if (isGetMessagesError) {
-    console.log(error);
-  }
-
-  const messageInputRef = useRef<HTMLInputElement>(null);
-  const [currMessages, setMessages] = useState<Message[]>([]);
-
-  socket.on("receive-message", (data) => {
-    console.log("here");
-
-    if (data.senderId === friendId)
-      setMessages([...currMessages, { me: false, message: data.message }]);
-  });
-
-  const sendMessage = () => {
-    if (messageInputRef.current && messageInputRef.current.value) {
-      const message = messageInputRef.current.value;
-      socket.emit("send-message", {
-        receiverId: friendId,
-        message: message,
-      });
-      setMessages([...currMessages, { me: true, message: message }]);
-      messageInputRef.current.value = "";
-    }
-  };
-
-  useEffect(() => {
-    if (isGetMessagesSuccess && messages) {
-      const oldMessages: Message[] = messages.map((message) => {
-        return { me: message.senderId !== friendId, message: message.content };
-      });
-
-      setMessages([...oldMessages, ...currMessages]);
-    }
-  }, [isGetMessagesSuccess]);
-
+const MessagesPage = () => {
   return (
-    <>
-      <div>Messages</div>
-      {isGetMessagesPending && <span>Loading...</span>}
-      {isGetMessagesSuccess && (
-        <ul>
-          {currMessages?.map((message) => (
-            <li key={message.message} className={message.me ? "right" : "left"}>
-              {message.message}
-            </li>
-          ))}
-        </ul>
-      )}
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          sendMessage();
-        }}
-      >
-        <input type="text" placeholder="Message" ref={messageInputRef} />
-        <button>Send</button>
-      </form>
-    </>
+    <Stack direction="row" height="100%" width="100%">
+      <Box width="300px" sx={{ backgroundColor: "#fafafe" }}>
+        <Box padding={3}>
+          <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
+            <Avatar src={userTestImage} />
+            <Stack>
+              <Typography variant="body1">Flen Fouleni</Typography>
+              <Typography variant="caption" color="textSecondary">
+                My account
+              </Typography>
+            </Stack>
+          </Stack>
+        </Box>
+        <Divider />
+        <Stack spacing={2} padding={3} width="100%">
+          <Stack spacing={1}>
+            <Typography variant="subtitle1">Online Now</Typography>
+            <Stack
+              spacing={1}
+              direction="row"
+              sx={{ overflowX: "auto", overflowY: "hidden", padding: "5px 0" }}
+            >
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+              <OnlineBadge
+                overlap="circular"
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                variant="dot"
+              >
+                <Avatar src={userTestImage} />
+              </OnlineBadge>
+            </Stack>
+          </Stack>
+          <Stack spacing={1}>
+            <Typography variant="subtitle1">Messages</Typography>
+          </Stack>
+        </Stack>
+      </Box>
+      <ChatBox conversationId={"me"} />
+    </Stack>
   );
 };
 
-export default Messages;
+export default MessagesPage;

@@ -4,7 +4,6 @@ import express from "express";
 import cors from "cors";
 import api from "./routes/api.routes";
 import { verifyToken } from "./utils";
-import Message from "./models/message.model";
 
 const app = express();
 app.use(express.json());
@@ -18,18 +17,8 @@ const io = new Server(httpServer, {
   cors: { origin: ["http://localhost:5173"] },
 });
 
-const socketMap = new Map<string, string>(); // userId -> socketId
-
-interface Props {
-  senderId: string;
-  recipientId: string;
-  content: string;
-}
-
-const saveMessage = async (data: Props) => {
-  const res = await Message.create(data);
-  console.log(res);
-};
+const userSocketMap = new Map<string, string>(); // userId -> socketId
+const getSocketId = (userId: string) => userSocketMap.get(userId);
 
 io.on("connect", (socket) => {
   const authToken = socket.handshake.auth.authToken;
@@ -37,23 +26,7 @@ io.on("connect", (socket) => {
 
   if (!isValid) return socket.disconnect();
 
-  socketMap.set(data._id, socket.id);
-
-  socket.on(
-    "send-message",
-    ({ receiverId, message }: { receiverId: string; message: string }) => {
-      saveMessage({
-        senderId: data._id,
-        recipientId: receiverId,
-        content: message,
-      });
-
-      io.to(socketMap.get(receiverId) as string).emit("receive-message", {
-        senderId: data._id,
-        message: message,
-      });
-    }
-  );
+  userSocketMap.set(data._id, socket.id);
 });
 
-export { httpServer, io };
+export { httpServer, io, getSocketId };

@@ -12,7 +12,7 @@ interface LoginData {
 }
 
 const useLogin = () => {
-  const apiService = new ApiService<LoginData, LoginInput>("/users/auth");
+  const apiService = new ApiService<LoginData, LoginInput>("/auth/login");
 
   const loginMutation = useMutation<LoginData, AxiosError, LoginInput>({
     mutationFn: (input) => apiService.post(input),

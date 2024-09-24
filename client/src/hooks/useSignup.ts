@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import ApiService from "../services/apiService";
 
-interface SingupInput {
+export interface SingupInput {
   username: string;
   password: string;
   firstName: string;
@@ -12,8 +12,7 @@ interface SingupInput {
 interface SingupData {}
 
 const useSignup = () => {
-  const apiService = new ApiService<SingupData, SingupInput>("/users/create");
-
+  const apiService = new ApiService<SingupData, SingupInput>("/auth/signup");
   const signupMutation = useMutation<SingupData, AxiosError, SingupInput>({
     mutationFn: (input) => apiService.post(input),
   });

@@ -1,26 +1,18 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import SignupPage from "./pages/SignupPage";
-import MessagesPage from "./pages/MessagesPage";
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomePage />,
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/signup",
-    element: <SignupPage />,
-  },
-  {
-    path: "/friends/:friendId/messages",
-    element: <MessagesPage />,
-  },
+  { path: "/", element: <Navigate to="/messages" /> },
+  { path: "/messages", element: <HomePage /> },
+  { path: "/friends", element: <Navigate to="/friends/my" /> },
+  { path: "/friends/my", element: <HomePage /> },
+  { path: "/friends/requests", element: <HomePage /> },
+  { path: "/friends/find", element: <HomePage /> },
+  { path: "/settings", element: <HomePage /> },
+  { path: "/login", element: <LoginPage /> },
+  { path: "/signup", element: <SignupPage /> },
 ]);
 
 export default router;
