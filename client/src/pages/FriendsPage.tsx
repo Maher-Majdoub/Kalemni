@@ -1,6 +1,8 @@
 import { Box, Tab, Tabs, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import FriendsList from "../components/FriendsList";
+import NewFriendsList from "../components/NewFriendsList";
+import FriendRequestsList from "../components/FriendRequestsList";
 
 enum Navigations {
   MY = "my",
@@ -27,6 +29,8 @@ const FriendsPage = () => {
         <Tab label="Find New Friends" value={Navigations.FIND} />
       </Tabs>
       {currPage === Navigations.MY && <FriendsList />}
+      {currPage === Navigations.REQUESTS && <FriendRequestsList />}
+      {currPage === Navigations.FIND && <NewFriendsList />}
     </Box>
   );
 };

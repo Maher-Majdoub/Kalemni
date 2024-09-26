@@ -9,6 +9,8 @@ router.get("/me", authMiddleware, userController.getProfile);
 
 router.get("/me/friends", authMiddleware, userController.getFriends);
 
+router.get("/find", authMiddleware, userController.getNewFriends);
+
 router.get(
   "/me/friends/requests",
   authMiddleware,

@@ -2,13 +2,13 @@ import mongoose, { Schema, Types } from "mongoose";
 import Joi from "joi";
 import { extractJoiErrors } from "../utils";
 
-export const userSnapshot = {
-  _id: { type: mongoose.Types.ObjectId, ref: "User", required: true },
+export const userSnapshotSchema = new Schema({
+  _id: { type: Types.ObjectId, ref: "User", required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   bio: { type: String },
   profilePicture: { type: String },
-};
+});
 
 const userSchema = new Schema(
   {
@@ -28,13 +28,18 @@ const userSchema = new Schema(
     birthDate: { type: Date },
     gender: { type: String, enum: ["m", "f"] },
     profilePicture: { type: String },
-    friends: { type: [userSnapshot] },
-    friendRequests: { type: [userSnapshot] },
+    friends: { type: [userSnapshotSchema] },
+    friendRequests: [
+      {
+        _id: { type: Types.ObjectId, default: new Types.ObjectId() },
+        user: userSnapshotSchema,
+      },
+    ],
   },
   { timestamps: true }
 );
 
-const User = mongoose.model("user", userSchema);
+const User = mongoose.model("User", userSchema);
 export default User;
 
 const userAuthJoiObject = {

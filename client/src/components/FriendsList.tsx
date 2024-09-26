@@ -1,15 +1,34 @@
+import { Card, Grid2, Stack, Typography } from "@mui/material";
+import defaultUserIcon from "../assets/default_user_icon.png";
 import useFriends from "../hooks/useFriends";
-import { Box } from "@mui/material";
 
 const FriendsList = () => {
   const { friends, isGetFriendsSuccess } = useFriends();
 
+  if (isGetFriendsSuccess) {
+  }
+
   return (
-    <Box>
-      {isGetFriendsSuccess &&
-        friends &&
-        friends.map((friend) => <p key={friend._id}>{friend.firstName}</p>)}
-    </Box>
+    <Grid2 container spacing={2}>
+      {friends &&
+        friends.map((friend) => (
+          <Grid2>
+            <Card>
+              <Stack>
+                <img
+                  src={friend.profilePicture || defaultUserIcon}
+                  width={200}
+                />
+                <Stack spacing={1} padding={2}>
+                  <Typography variant="h6">
+                    {friend.firstName} {friend.lastName}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Card>
+          </Grid2>
+        ))}
+    </Grid2>
   );
 };
 

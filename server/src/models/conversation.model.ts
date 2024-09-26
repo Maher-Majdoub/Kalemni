@@ -1,5 +1,5 @@
 import mongoose, { Schema, Types } from "mongoose";
-import { userSnapshot } from "./user.model";
+import { userSnapshotSchema } from "./user.model";
 
 const messageSchema = new Schema(
   {
@@ -18,7 +18,7 @@ const messageSchema = new Schema(
 
 const conversationSchema = new Schema(
   {
-    participants: [userSnapshot],
+    participants: [userSnapshotSchema],
     messages: [messageSchema],
   },
   { timestamps: true }

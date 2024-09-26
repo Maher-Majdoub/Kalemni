@@ -27,9 +27,32 @@ class UserController {
     res.send(user.friends);
   };
 
+  getNewFriends = async (req: Request, res: Response) => {
+    const me = await this.getMe(req, ["friendRequests", "friends"]);
+
+    // To Do: Implement a better solution
+    const usersToExcelude = [
+      me.friends.map((friend) => friend._id),
+      me.friendRequests.map((friendRequest) => friendRequest.user?._id),
+    ];
+
+    const users = await User.find({
+      _id: { $nin: usersToExcelude, $ne: me._id },
+      friendRequests: {
+        $not: {
+          $elemMatch: {
+            "user._id": req.body.user._id,
+          },
+        },
+      },
+    }).select(["firstName", "lastName", "profilePicture"]);
+
+    res.send(users);
+  };
+
   getFriendRequests = async (req: Request, res: Response) => {
     const me = await this.getMe(req, ["friendRequests"]);
-    res.send({ friendRequests: me.friendRequests });
+    res.send(me.friendRequests);
   };
 
   sendFriendRequest = async (req: Request, res: Response) => {
@@ -41,12 +64,22 @@ class UserController {
     const user = await this.getUser(userId);
     if (!user) return res.status(404).send({ message: "User not found" });
 
-    const me = await this.getMe(req, ["friendRequests"]);
+    const me = await this.getMe(req, [
+      "firstName",
+      "lastName",
+      "bio",
+      "profilePicture",
+    ]);
 
     const friendRequest = {
-      _id: me._id,
-      firstName: me.firstName,
-      lastName: me.lastName,
+      _id: new Types.ObjectId(),
+      user: {
+        _id: me._id,
+        firstName: me.firstName,
+        lastName: me.lastName,
+        bio: me.bio,
+        profilePicture: me.profilePicture,
+      },
     };
 
     user.friendRequests.push(friendRequest);
@@ -60,23 +93,53 @@ class UserController {
   };
 
   acceptFriendRequest = async (req: Request, res: Response) => {
-    const me = await this.getMe(req, ["friendRequests"]);
+    const me = await this.getMe(req, [
+      "friendRequests",
+      "friends",
+      "firstName",
+      "lastName",
+      "bio",
+      "profilePicture",
+    ]);
+    const requestId = req.params["requestId"];
 
     const friendRequest = me.friendRequests.find(
-      (friendRequest) => friendRequest._id === req.params["friendRequestId"]
+      (friendRequest) => friendRequest._id == requestId
     );
 
-    console.log(friendRequest);
+    if (!friendRequest?.user)
+      return res.status(404).send({ message: "Friend request not found" });
+
+    const user = await User.findById(friendRequest.user._id).select([
+      "friends",
+    ]);
+    if (!user) return res.status(404).send({ message: "User not found" });
+
+    me.friends.push(friendRequest.user);
+    user.friends.push({
+      _id: me._id,
+      firstName: me.firstName,
+      lastName: me.lastName,
+      bio: me.bio,
+      profilePicture: me.profilePicture,
+    });
+    me.friendRequests.remove(friendRequest);
+
+    await Promise.all([me.save(), user.save()]);
+    res.status(201).send({});
   };
 
   refuseFriendRequest = async (req: Request, res: Response) => {
     const me = await this.getMe(req, ["friendRequests"]);
+    const requestId = req.params["requestId"];
 
     const friendRequest = me.friendRequests.find(
-      (friendRequest) => friendRequest._id === req.params["friendRequestId"]
+      (friendRequest) => friendRequest._id == requestId
     );
 
-    console.log(friendRequest);
+    me.friendRequests.remove(friendRequest);
+    me.save();
+    res.status(204).send({});
   };
 }
 
