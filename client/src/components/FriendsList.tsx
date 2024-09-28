@@ -12,7 +12,7 @@ const FriendsList = () => {
     <Grid2 container spacing={2}>
       {friends &&
         friends.map((friend) => (
-          <Grid2>
+          <Grid2 key={friend._id}>
             <Card>
               <Stack>
                 <img

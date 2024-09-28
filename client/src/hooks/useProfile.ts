@@ -1,13 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import ApiService from "../services/apiService";
+import { UserSnapshotData } from "./useFriends";
 import { AxiosError } from "axios";
 
 interface ProfileData {
+  _id: string;
   firstName: string;
   lastName: string;
   gender?: "m" | "f";
   birthDate: Date;
   profilePicture: string;
+  friends: UserSnapshotData[];
 }
 
 const useProfile = () => {
