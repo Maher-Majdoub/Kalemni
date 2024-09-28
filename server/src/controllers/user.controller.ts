@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import User from "../models/user.model";
-import { io, getSocketId } from "../app";
+import { io, getSocketId, isConnected } from "../app";
 import { Types } from "mongoose";
 
 class UserController {
@@ -27,21 +27,37 @@ class UserController {
     res.send(user.friends);
   };
 
+  getOnlineFriends = async (req: Request, res: Response) => {
+    const me = await this.getMe(req, ["friends"]);
+
+    const onlineFriends = [];
+    for (const friend of me.friends) {
+      if (isConnected(String(friend._id)))
+        onlineFriends.push({
+          _id: friend._id,
+          firstName: friend.firstName,
+          lastName: friend.lastName,
+          profilePicture: friend.profilePicture,
+        });
+    }
+
+    res.send(onlineFriends);
+  };
+
   getNewFriends = async (req: Request, res: Response) => {
     const me = await this.getMe(req, ["friendRequests", "friends"]);
 
     // To Do: Implement a better solution
-    const usersToExcelude = [
-      me.friends.map((friend) => friend._id),
-      me.friendRequests.map((friendRequest) => friendRequest.user?._id),
-    ];
+    const usersToExcelude = [];
+    for (const friend of me.friends) usersToExcelude.push(friend._id);
+    for (const friend of me.friendRequests) usersToExcelude.push(friend._id);
 
     const users = await User.find({
       _id: { $nin: usersToExcelude, $ne: me._id },
       friendRequests: {
         $not: {
           $elemMatch: {
-            "user._id": req.body.user._id,
+            "user._id": me._id,
           },
         },
       },
