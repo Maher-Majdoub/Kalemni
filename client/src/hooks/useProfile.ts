@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import ApiService from "../services/apiService";
-import { UserSnapshotData } from "./useFriends";
+import { IUserSnapshot } from "./useFriends";
 import { AxiosError } from "axios";
 
 interface ProfileData {
@@ -10,15 +10,17 @@ interface ProfileData {
   gender?: "m" | "f";
   birthDate: Date;
   profilePicture: string;
-  friends: UserSnapshotData[];
+  friends: IUserSnapshot[];
 }
 
 const useProfile = () => {
   const apiService = new ApiService<ProfileData>("/users/me");
+  const authToken = localStorage.getItem("auth-token");
 
   const getProfile = useQuery<ProfileData, AxiosError>({
     queryFn: apiService.get,
     queryKey: ["me"],
+    enabled: authToken !== null,
   });
 
   return {

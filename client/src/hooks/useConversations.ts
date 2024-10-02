@@ -1,15 +1,28 @@
 import { useQuery } from "@tanstack/react-query";
 import ApiService from "../services/apiService";
 import { AxiosError } from "axios";
+import { IUserSnapshot } from "./useFriends";
+import { IMessage } from "./useConversation";
 
-interface ConversationData {}
+export interface IConversationSnapshot {
+  _id: string;
+  type: "p" | "g";
+  participants: IUserSnapshot[];
+  lastMessage: IMessage | undefined;
+  isLastMessageSentByMe: boolean;
+}
 
 const useConversations = () => {
-  const apiService = new ApiService<ConversationData>("/api/conversations");
+  const apiService = new ApiService<IConversationSnapshot[]>(
+    "/users/me/conversations"
+  );
+  const authToken = localStorage.getItem("auth-token");
 
-  const getConversations = useQuery<ConversationData, AxiosError>({
+  const getConversations = useQuery<IConversationSnapshot[], AxiosError>({
     queryFn: apiService.get,
     queryKey: ["conversations"],
+    enabled: authToken !== null,
+    staleTime: Infinity,
   });
 
   return {

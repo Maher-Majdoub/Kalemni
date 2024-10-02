@@ -1,16 +1,17 @@
 import { useQuery } from "@tanstack/react-query";
 import ApiService from "../services/apiService";
-import { UserSnapshotData } from "./useFriends";
+import { IUserSnapshot } from "./useFriends";
 import { AxiosError } from "axios";
 
 const useOnlineFriends = () => {
-  const apiSevice = new ApiService<UserSnapshotData[]>(
-    "/users/me/friends/online"
-  );
+  const apiSevice = new ApiService<IUserSnapshot[]>("/users/me/friends/online");
 
-  const query = useQuery<UserSnapshotData[], AxiosError>({
+  const authToken = localStorage.getItem("auth-token");
+
+  const query = useQuery<IUserSnapshot[], AxiosError>({
     queryFn: apiSevice.get,
     queryKey: ["onlineFriends"],
+    enabled: authToken !== null,
   });
 
   return {

@@ -1,24 +1,44 @@
-import mongoose, { Schema, Types } from "mongoose";
-import { userSnapshotSchema } from "./user.model";
+import mongoose, { Model, Schema, Types } from "mongoose";
+import { IUserSnapshot, userSnapshotSchema } from "./user.model";
+
+interface IMessage {
+  _id: Types.ObjectId;
+  sender: IUserSnapshot;
+  content: String;
+  updatedAt?: Date;
+  createdAt?: Date;
+}
+
+interface IConversation {
+  _id: Types.ObjectId;
+  type: "p" | "g";
+  participants: IUserSnapshot[];
+  messages: IMessage[];
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+type ConversationModel = Model<IConversation, {}>;
 
 const messageSchema = new Schema(
   {
-    senderId: {
-      type: Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+    sender: userSnapshotSchema,
     content: {
-      type: Types.ObjectId,
+      type: String,
       required: true,
     },
   },
   { timestamps: true }
 );
 
-const conversationSchema = new Schema(
+const conversationSchema = new Schema<IConversation, ConversationModel>(
   {
-    participants: [userSnapshotSchema],
+    type: {
+      type: String,
+      required: true,
+      enum: ["p", "g"],
+    },
+    participants: { type: [userSnapshotSchema] },
     messages: [messageSchema],
   },
   { timestamps: true }

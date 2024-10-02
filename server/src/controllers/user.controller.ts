@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import User from "../models/user.model";
 import { io, getSocketId, isConnected } from "../app";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
+import Conversation from "../models/conversation.model";
 
 class UserController {
   private getUser = async (userId: string, fields?: string[]) =>
@@ -89,13 +90,7 @@ class UserController {
 
     const friendRequest = {
       _id: new Types.ObjectId(),
-      user: {
-        _id: me._id,
-        firstName: me.firstName,
-        lastName: me.lastName,
-        bio: me.bio,
-        profilePicture: me.profilePicture,
-      },
+      user: me.getSnapshot(),
     };
 
     user.friendRequests.push(friendRequest);
@@ -119,8 +114,8 @@ class UserController {
     ]);
     const requestId = req.params["requestId"];
 
-    const friendRequest = me.friendRequests.find(
-      (friendRequest) => friendRequest._id == requestId
+    const friendRequest = me.friendRequests.find((friendRequest) =>
+      friendRequest._id.equals(requestId)
     );
 
     if (!friendRequest?.user)
@@ -128,20 +123,38 @@ class UserController {
 
     const user = await User.findById(friendRequest.user._id).select([
       "friends",
+      "firstName",
+      "lastName",
+      "bio",
+      "profilePicture",
     ]);
+
     if (!user) return res.status(404).send({ message: "User not found" });
 
-    me.friends.push(friendRequest.user);
-    user.friends.push({
-      _id: me._id,
-      firstName: me.firstName,
-      lastName: me.lastName,
-      bio: me.bio,
-      profilePicture: me.profilePicture,
-    });
-    me.friendRequests.remove(friendRequest);
+    const meSnapshot = me.getSnapshot();
+    const userSnapshot = user.getSnapshot();
 
-    await Promise.all([me.save(), user.save()]);
+    user.friends.push(meSnapshot);
+    me.friends.push(userSnapshot);
+
+    const friendRequestIndex = me.friendRequests.findIndex((req) =>
+      req._id.equals(friendRequest._id)
+    );
+
+    if (friendRequestIndex !== -1)
+      me.friendRequests.splice(friendRequestIndex, 1);
+
+    await Promise.all([
+      me.save(),
+      user.save(),
+      Conversation.create([
+        {
+          type: "p",
+          participants: [meSnapshot, friendRequest.user],
+        },
+      ]),
+    ]);
+
     res.status(201).send({});
   };
 
@@ -149,12 +162,14 @@ class UserController {
     const me = await this.getMe(req, ["friendRequests"]);
     const requestId = req.params["requestId"];
 
-    const friendRequest = me.friendRequests.find(
-      (friendRequest) => friendRequest._id == requestId
+    const friendRequestIndex = me.friendRequests.findIndex((req) =>
+      req._id.equals(requestId)
     );
 
-    me.friendRequests.remove(friendRequest);
-    me.save();
+    if (friendRequestIndex !== -1) {
+      me.friendRequests.splice(friendRequestIndex, 1);
+      await me.save();
+    }
     res.status(204).send({});
   };
 }

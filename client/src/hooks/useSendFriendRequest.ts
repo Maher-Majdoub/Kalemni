@@ -1,13 +1,13 @@
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { UserSnapshotData } from "./useFriends";
+import { IUserSnapshot } from "./useFriends";
 import ApiService from "../services/apiService";
 
 const useSendFriendRequest = (userId: string) => {
-  const apiService = new ApiService<UserSnapshotData>(
+  const apiService = new ApiService<IUserSnapshot>(
     `/users/${userId}/friend-requests`
   );
-  const mutation = useMutation<UserSnapshotData, AxiosError, {}>({
+  const mutation = useMutation<IUserSnapshot, AxiosError, {}>({
     mutationFn: apiService.post,
   });
 

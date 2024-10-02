@@ -5,11 +5,11 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-import { UserSnapshotData } from "../hooks/useFriends";
+import { IUserSnapshot } from "../hooks/useFriends";
 import defaultUserIcon from "../assets/default_user_icon.png";
 import useSendFriendRequest from "../hooks/useSendFriendRequest";
 
-const UserCard = ({ user }: { user: UserSnapshotData }) => {
+const UserCard = ({ user }: { user: IUserSnapshot }) => {
   const {
     sendFriendRequest,
     isSendFriendRequestSuccess,

@@ -1,14 +1,12 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
 import { socket } from "../App";
-import { UserSnapshotData } from "../hooks/useFriends";
+import { IUserSnapshot } from "../hooks/useFriends";
 import useOnlineFriends from "../hooks/useOnlineFriends";
 
-export const OnlineFriendsContext = createContext<UserSnapshotData[]>([]);
+export const OnlineFriendsContext = createContext<IUserSnapshot[]>([]);
 
 const OnlineFriendsProvider = ({ children }: { children: ReactNode }) => {
-  const [connectedFriends, setConnectedFriends] = useState<UserSnapshotData[]>(
-    []
-  );
+  const [connectedFriends, setConnectedFriends] = useState<IUserSnapshot[]>([]);
 
   const { onlineFriends, isGetOnlineFriendsSuccess } = useOnlineFriends();
 
@@ -29,14 +27,14 @@ const OnlineFriendsProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isGetOnlineFriendsSuccess]);
 
-  socket.on("userConnected", (user: UserSnapshotData) => {
+  socket.on("userConnected", (user: IUserSnapshot) => {
     for (const currConnected of connectedFriends)
       if (currConnected._id === user._id) return;
 
     setConnectedFriends([...connectedFriends, user]);
   });
 
-  socket.on("userDisconnected", (user: UserSnapshotData) => {
+  socket.on("userDisconnected", (user: IUserSnapshot) => {
     setConnectedFriends(
       connectedFriends.filter((friend) => friend._id !== user._id)
     );

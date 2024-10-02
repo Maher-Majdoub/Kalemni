@@ -1,6 +1,7 @@
 import { Badge, styled } from "@mui/material";
+import { ReactNode } from "react";
 
-const OnlineBadge = styled(Badge)(({ theme }) => ({
+const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
     backgroundColor: "#44b700",
     color: "#44b700",
@@ -11,5 +12,23 @@ const OnlineBadge = styled(Badge)(({ theme }) => ({
     border: "1px solid white",
   },
 }));
+
+interface Props {
+  isConnected: boolean;
+  children: ReactNode;
+}
+
+const OnlineBadge = ({ isConnected, children }: Props) => (
+  <StyledBadge
+    overlap="circular"
+    anchorOrigin={{
+      vertical: "bottom",
+      horizontal: "right",
+    }}
+    variant={isConnected ? "dot" : undefined}
+  >
+    {children}
+  </StyledBadge>
+);
 
 export default OnlineBadge;

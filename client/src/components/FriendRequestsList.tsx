@@ -9,11 +9,11 @@ import {
 import useFriendRequests from "../hooks/useFriendRequests";
 import defaultUserIcon from "../assets/default_user_icon.png";
 import useRefuseFriendRequest from "../hooks/useRefuseFriendRequest";
-import { UserSnapshotData } from "../hooks/useFriends";
+import { IUserSnapshot } from "../hooks/useFriends";
 import useAcceptFriendRequest from "../hooks/useAcceptFriendRequest";
 
 interface Props {
-  user: UserSnapshotData;
+  user: IUserSnapshot;
   requestId: string;
 }
 

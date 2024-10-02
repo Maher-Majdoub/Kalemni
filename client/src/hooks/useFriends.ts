@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import ApiService from "../services/apiService";
 import { AxiosError } from "axios";
 
-export interface UserSnapshotData {
+export interface IUserSnapshot {
   _id: string;
   firstName: string;
   lastName: string;
@@ -10,11 +10,13 @@ export interface UserSnapshotData {
 }
 
 const useFriends = () => {
-  const apiService = new ApiService<UserSnapshotData[]>("/users/me/friends");
+  const apiService = new ApiService<IUserSnapshot[]>("/users/me/friends");
+  const authToken = localStorage.getItem("auth-token");
 
-  const getFriends = useQuery<UserSnapshotData[], AxiosError>({
+  const getFriends = useQuery<IUserSnapshot[], AxiosError>({
     queryFn: apiService.get,
     queryKey: ["friends"],
+    enabled: authToken !== null,
   });
 
   return {
