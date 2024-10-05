@@ -5,17 +5,22 @@ import { IConversationSnapshot } from "./useConversations";
 export interface IAddMessage {
   conversationId: string;
   message: IMessage;
+  sentByMe?: boolean;
 }
 
 const useAddMessage = (queryClient: QueryClient) => {
-  const addMessage = (data: IAddMessage) => {
+  const addMessage = ({
+    conversationId,
+    message,
+    sentByMe = false,
+  }: IAddMessage) => {
     queryClient.setQueryData(
-      ["conversation", data.conversationId],
+      ["conversation", conversationId],
       (oldData: IConversation) => {
         if (!oldData) return;
         return {
           ...oldData,
-          messages: [data.message, ...oldData.messages],
+          messages: [message, ...oldData.messages],
         };
       }
     );
@@ -25,10 +30,11 @@ const useAddMessage = (queryClient: QueryClient) => {
       (oldData: IConversationSnapshot[]) => {
         let conversation: IConversationSnapshot | undefined;
         for (const oldConversation of oldData) {
-          if (oldConversation._id === data.conversationId) {
+          if (oldConversation._id === conversationId) {
             conversation = {
               ...oldConversation,
-              lastMessage: data.message,
+              lastMessage: message,
+              isLastMessageSentByMe: sentByMe,
             };
           }
         }

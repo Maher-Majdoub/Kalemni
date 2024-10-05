@@ -7,7 +7,11 @@ import { IMessage } from "./useConversation";
 export interface IConversationSnapshot {
   _id: string;
   type: "p" | "g";
-  participants: IUserSnapshot[];
+  participants: {
+    user: IUserSnapshot;
+    lastSeenMessaageId: string;
+    isTyping?: boolean;
+  }[];
   lastMessage: IMessage | undefined;
   isLastMessageSentByMe: boolean;
 }

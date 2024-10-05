@@ -30,11 +30,11 @@ const ConversationHeader = ({ conversation }: Props) => {
         >
           <Stack direction={"row"} spacing={1}>
             <OnlineBadge isConnected={isConnected}>
-              <Avatar src={friend.profilePicture || defaultUserIcon} />
+              <Avatar src={friend.user.profilePicture || defaultUserIcon} />
             </OnlineBadge>
             <Stack>
               <Typography variant="body2">
-                {friend.firstName} {friend.lastName}
+                {friend.user.firstName} {friend.user.lastName}
               </Typography>
               <Typography variant="caption" color="textSecondary">
                 Online

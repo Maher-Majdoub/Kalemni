@@ -7,18 +7,31 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import { PiMicrophone } from "react-icons/pi";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
+import { socket } from "../App";
 
 interface Props {
+  conversationId: string;
   onSendMessage({ message }: { message: { content: string } }): void;
 }
 
-const MessageInputSection = ({ onSendMessage }: Props) => {
+const MessageInputSection = ({ conversationId, onSendMessage }: Props) => {
   const { register, handleSubmit, setValue } = useForm();
   const [isWritting, setIsWritting] = useState(false);
+
+  const handleInputChanges = (currValue: string) => {
+    if (currValue && !isWritting)
+      socket.emit("startTyping", { conversationId: conversationId });
+
+    if (!currValue && isWritting)
+      socket.emit("stopTyping", { conversationId: conversationId });
+
+    setIsWritting(!!currValue);
+  };
 
   const onSubmit = handleSubmit((data) => {
     onSendMessage({ message: { content: data.message } });
     setValue("message", "");
+    handleInputChanges("");
   });
 
   return (
@@ -48,7 +61,7 @@ const MessageInputSection = ({ onSendMessage }: Props) => {
                   type="text"
                   autoComplete=""
                   placeholder="Your Message..."
-                  onChange={(e) => setIsWritting(!!e.target.value)}
+                  onChange={(e) => handleInputChanges(e.currentTarget.value)}
                 />
                 <IconButton
                   children={<FaSmile />}

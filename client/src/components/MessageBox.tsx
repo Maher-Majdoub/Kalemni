@@ -1,40 +1,38 @@
 import { Avatar, Box, Stack, Typography } from "@mui/material";
-import { IUserSnapshot } from "../hooks/useFriends";
 import { IMessage } from "../hooks/useConversation";
 import defaultUserIcon from "../assets/default_user_icon.png";
 
 interface Props {
-  user: IUserSnapshot;
-  messages: IMessage[];
+  message: IMessage;
+  isNewMessagesGroup: boolean;
 }
 
-const MessageBox = ({ user, messages }: Props) => {
+const MessageBox = ({ message, isNewMessagesGroup }: Props) => {
   return (
-    <Box>
-      <Stack spacing={1} direction="row">
-        {!messages[0].sentByMe && (
-          <Avatar
-            src={user.profilePicture || defaultUserIcon}
-            sx={{ alignSelf: "flex-end", width: 30, height: 30 }}
-          />
-        )}
-        <Stack spacing={0.4} borderRadius={4} overflow="hidden">
-          {messages.map((message) => (
-            <Box
-              sx={{
-                backgroundColor: "#3559FF",
-                borderRadius: "5px",
-              }}
-              padding="5px 10px"
-              color="white"
-              key={message._id}
-            >
-              <Typography>{message.content}</Typography>
-            </Box>
-          ))}
-        </Stack>
-      </Stack>
-    </Box>
+    <Stack spacing={1} direction="row">
+      <Avatar
+        src={message.sender.profilePicture || defaultUserIcon}
+        sx={{
+          alignSelf: "flex-end",
+          width: 30,
+          height: 30,
+          opacity: isNewMessagesGroup && !message.sentByMe ? 1 : 0,
+        }}
+      />
+      <Box
+        key={message._id}
+        padding="5px 10px"
+        color="white"
+        width="fit-content"
+        alignSelf={message.sentByMe ? "flex-end" : "flex-start"}
+        sx={{
+          backgroundColor: "#3559FF",
+          borderRadius: "8px",
+        }}
+      >
+        <Typography>{message.content}</Typography>
+      </Box>
+    </Stack>
   );
 };
 

@@ -58,11 +58,13 @@ const LastConversationsList = ({
                 >
                   <Stack direction="row" spacing={2}>
                     <OnlineBadge isConnected>
-                      <Avatar src={friend.profilePicture || defaultUserIcon} />
+                      <Avatar
+                        src={friend.user.profilePicture || defaultUserIcon}
+                      />
                     </OnlineBadge>
                     <Stack>
                       <Typography variant="subtitle2">
-                        {friend.firstName} {friend.lastName}
+                        {friend.user.firstName} {friend.user.lastName}
                       </Typography>
                       <Typography
                         variant="caption"
@@ -74,7 +76,7 @@ const LastConversationsList = ({
                           maxWidth: "150px",
                         }}
                       >
-                        {extractMessageSnapshot(conversation, friend)}
+                        {extractMessageSnapshot(conversation, friend.user)}
                       </Typography>
                     </Stack>
                   </Stack>

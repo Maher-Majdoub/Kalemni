@@ -8,12 +8,18 @@ export interface IMessage {
   sender: IUserSnapshot;
   content: string;
   sentByMe: boolean;
+  createdAt?: Date;
+  seenUsers?: IUserSnapshot[];
 }
 
 export interface IConversation {
   _id: string;
   type: "private" | "group";
-  participants: IUserSnapshot[];
+  participants: {
+    user: IUserSnapshot;
+    lastSeenMessageId: string;
+    isTyping?: boolean;
+  }[];
   messages: IMessage[];
 }
 

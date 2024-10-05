@@ -5,6 +5,7 @@ import cors from "cors";
 import api from "./routes/api.routes";
 import { verifyToken } from "./utils";
 import User from "./models/user.model";
+import Conversation from "./models/conversation.model";
 
 const app = express();
 app.use(express.json());
@@ -71,6 +72,93 @@ io.on("connect", async (socket) => {
       }, 3000);
     }
   });
+
+  socket.on(
+    "seenMessage",
+    async ({
+      conversationId,
+      messageId,
+    }: {
+      conversationId: string;
+      messageId: string;
+    }) => {
+      const conversation = await Conversation.findById(conversationId).select([
+        "participants",
+        "messages",
+      ]);
+
+      if (!conversation) return;
+
+      const message = conversation.messages.find((message) =>
+        message._id.equals(messageId)
+      );
+
+      if (!message) return;
+      for (const participant of conversation.participants) {
+        if (participant.user._id.equals(userId)) {
+          participant.lastSeenMessageId = message._id;
+          break;
+        }
+      }
+      await conversation.save();
+
+      for (const participant of conversation.participants) {
+        if (participant.user._id.equals(userId)) continue;
+
+        const socketId = getSocketId(participant.user._id.toString());
+        if (socketId)
+          io.to(socketId).emit("seenMessage", {
+            conversationId: conversation._id,
+            messageId: message._id,
+            userId: userId,
+          });
+      }
+    }
+  );
+
+  socket.on(
+    "startTyping",
+    async ({ conversationId }: { conversationId: string }) => {
+      const conversation = await Conversation.findById(conversationId).select(
+        "participants"
+      );
+
+      if (!conversation) return;
+
+      for (const participant of conversation.participants) {
+        if (participant.user._id.equals(user._id)) continue;
+
+        const socketId = getSocketId(participant.user._id.toString());
+        if (socketId)
+          io.to(socketId).emit("startTyping", {
+            userId: user._id,
+            conversationId: conversation._id,
+          });
+      }
+    }
+  );
+
+  socket.on(
+    "stopTyping",
+    async ({ conversationId }: { conversationId: string }) => {
+      const conversation = await Conversation.findById(conversationId).select(
+        "participants"
+      );
+
+      if (!conversation) return;
+
+      for (const participant of conversation.participants) {
+        if (participant.user._id.equals(user._id)) continue;
+
+        const socketId = getSocketId(participant.user._id.toString());
+        if (socketId)
+          io.to(socketId).emit("stopTyping", {
+            userId: user._id,
+            conversationId: conversation._id,
+          });
+      }
+    }
+  );
 });
 
 export { httpServer, io, getSocketId, isConnected };

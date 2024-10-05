@@ -150,7 +150,10 @@ class UserController {
       Conversation.create([
         {
           type: "p",
-          participants: [meSnapshot, friendRequest.user],
+          participants: [
+            { user: meSnapshot, lastSeen: Date.now() },
+            { user: friendRequest.user, lastSeen: Date.now() },
+          ],
         },
       ]),
     ]);

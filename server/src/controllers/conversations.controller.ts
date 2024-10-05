@@ -8,7 +8,7 @@ class ConversationsController {
   getConversations = async (req: Request, res: Response) => {
     const conversations = await Conversation.find({
       participants: {
-        $elemMatch: { _id: req.body.user._id },
+        $elemMatch: { "user._id": req.body.user._id },
       },
     })
       .sort("-updatedAt")
@@ -30,7 +30,7 @@ class ConversationsController {
           isLastMessageSentByMe:
             lastMessage && lastMessage.sender._id.equals(me._id),
           participants: conversation.participants.filter(
-            (participant) => !participant._id.equals(me._id)
+            (participant) => !participant.user._id.equals(me._id)
           ),
         };
       })
@@ -47,11 +47,11 @@ class ConversationsController {
 
     if (conversation)
       for (const participant of conversation.participants) {
-        if (participant._id == req.body.user._id) {
+        if (participant.user._id == req.body.user._id) {
           return res.send({
             ...conversation,
             participants: conversation.participants.filter(
-              (participant) => participant._id != req.body.user._id
+              (participant) => !participant.user._id.equals(req.body.user._id)
             ),
             messages: conversation.messages.map((message) => {
               return {
@@ -91,16 +91,16 @@ class ConversationsController {
     };
 
     for (const participant of conversation.participants) {
-      if (participant._id == req.body.user._id) {
+      if (participant.user._id.equals(req.body.user._id)) {
         conversation.messages.unshift(message);
         await conversation.save();
-        res.status(201).send({});
+        res.status(201).send(message);
         break;
       }
     }
 
     for (const participant of conversation.participants) {
-      const participantId = String(participant._id);
+      const participantId = String(participant.user._id);
       if (me._id.equals(participantId)) continue;
 
       const socketId = getSocketId(participantId);
