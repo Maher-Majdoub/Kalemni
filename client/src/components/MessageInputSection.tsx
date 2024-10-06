@@ -7,7 +7,7 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import { PiMicrophone } from "react-icons/pi";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { socket } from "../App";
+import { useSocketContext } from "../providers/SocketProvider";
 
 interface Props {
   conversationId: string;
@@ -17,8 +17,11 @@ interface Props {
 const MessageInputSection = ({ conversationId, onSendMessage }: Props) => {
   const { register, handleSubmit, setValue } = useForm();
   const [isWritting, setIsWritting] = useState(false);
+  const socket = useSocketContext();
 
   const handleInputChanges = (currValue: string) => {
+    if (!socket) return;
+
     if (currValue && !isWritting)
       socket.emit("startTyping", { conversationId: conversationId });
 

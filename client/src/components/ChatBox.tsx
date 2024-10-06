@@ -6,23 +6,20 @@ import MessagesList from "./MessagesList";
 import useConversation from "../hooks/useConversation";
 import { IUserSnapshot } from "../hooks/useFriends";
 import { useEffect } from "react";
-import { socket } from "../App";
+import { useSocketContext } from "../providers/SocketProvider";
 
-interface Props {
-  conversationId: string;
-}
-
-const ChatBox = ({ conversationId }: Props) => {
+const ChatBox = ({ conversationId }: { conversationId: string }) => {
   const { conversation } = useConversation(conversationId);
   const { sendMessage } = useSendMessage(conversationId);
+  const socket = useSocketContext();
 
   useEffect(() => {
-    if (conversation && conversation.messages)
-      socket.emit("seenMessage", {
+    if (conversation && conversation.messages && socket)
+      socket.emit("sawMessage", {
         conversationId: conversation._id,
         messageId: conversation.messages[0]._id,
       });
-  }, [conversation]);
+  }, [conversation, socket]);
 
   if (!conversation) return <p>wait....</p>;
 

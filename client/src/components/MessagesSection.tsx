@@ -1,8 +1,6 @@
 import { Stack, Typography, Box } from "@mui/material";
 import { CiSearch } from "react-icons/ci";
 import LastConversationsList from "./LastConversationsList";
-import { socket } from "../App";
-import { useEffect } from "react";
 
 interface Props {
   selectedConversationId: string | undefined;
@@ -13,13 +11,6 @@ const MessagesSection = ({
   selectedConversationId,
   onSelectConversation,
 }: Props) => {
-  useEffect(() => {
-    if (selectedConversationId)
-      socket.emit("enterConversation", {
-        conversationId: selectedConversationId,
-      });
-  }, [selectedConversationId]);
-
   return (
     <Stack spacing={1}>
       <Typography variant="subtitle1" paddingLeft={3} paddingRight={3}>

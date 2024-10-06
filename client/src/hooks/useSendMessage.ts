@@ -1,9 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import ApiService from "../services/apiService";
-import { AxiosError } from "axios";
 import { IConversation, IMessage } from "./useConversation";
+import { AxiosError } from "axios";
 import useAddMessage from "./useAddMessage";
 import useProfile from "./useProfile";
+import ApiService from "../services/apiService";
 
 export interface MessageInput {
   message: { content: string };

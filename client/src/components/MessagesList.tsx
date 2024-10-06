@@ -14,7 +14,7 @@ const MessagesList = ({ conversation }: Props) => {
   const getSeenUsers = (message: IMessage) => {
     const seenUsers = [];
     for (const participant of conversation.participants) {
-      if (participant.lastSeenMessageId === message._id)
+      if (participant.lastSawMessageId === message._id)
         seenUsers.push(participant.user);
     }
     return seenUsers;

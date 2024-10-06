@@ -1,12 +1,13 @@
 import { createContext, ReactNode, useEffect, useState } from "react";
-import { socket } from "../App";
 import { IUserSnapshot } from "../hooks/useFriends";
 import useOnlineFriends from "../hooks/useOnlineFriends";
+import { useSocketContext } from "./SocketProvider";
 
 export const OnlineFriendsContext = createContext<IUserSnapshot[]>([]);
 
 const OnlineFriendsProvider = ({ children }: { children: ReactNode }) => {
   const [connectedFriends, setConnectedFriends] = useState<IUserSnapshot[]>([]);
+  const socket = useSocketContext();
 
   const { onlineFriends, isGetOnlineFriendsSuccess } = useOnlineFriends();
 
@@ -27,18 +28,22 @@ const OnlineFriendsProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [isGetOnlineFriendsSuccess]);
 
-  socket.on("userConnected", (user: IUserSnapshot) => {
-    for (const currConnected of connectedFriends)
-      if (currConnected._id === user._id) return;
+  useEffect(() => {
+    if (socket) {
+      socket.on("userConnected", (user: IUserSnapshot) => {
+        for (const currConnected of connectedFriends)
+          if (currConnected._id === user._id) return;
 
-    setConnectedFriends([...connectedFriends, user]);
-  });
+        setConnectedFriends([...connectedFriends, user]);
+      });
 
-  socket.on("userDisconnected", (user: IUserSnapshot) => {
-    setConnectedFriends(
-      connectedFriends.filter((friend) => friend._id !== user._id)
-    );
-  });
+      socket.on("userDisconnected", (user: IUserSnapshot) => {
+        setConnectedFriends(
+          connectedFriends.filter((friend) => friend._id !== user._id)
+        );
+      });
+    }
+  }, [socket]);
 
   return (
     <OnlineFriendsContext.Provider value={connectedFriends}>

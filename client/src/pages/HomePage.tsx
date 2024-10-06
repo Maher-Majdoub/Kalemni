@@ -4,19 +4,20 @@ import { Box, Stack } from "@mui/material";
 import SideBar from "../components/SideBar";
 import MessagesPage from "./MessagesPage";
 import FriendsPage from "./FriendsPage";
+import { useAuthContext } from "../providers/AuthProvider";
+import useListenToConversations from "../hooks/useListenToConversations";
 
 const HomePage = () => {
   const navigate = useNavigate();
-
   const { pathname } = useLocation();
   const currPage = pathname.split("/")[1];
+  const [authToken, _] = useAuthContext();
+
+  useListenToConversations();
 
   useEffect(() => {
-    const authToken = localStorage.getItem("auth-token");
-    if (!authToken) {
-      return navigate("/login");
-    }
-  }, []);
+    if (!authToken) return navigate("/login");
+  }, [authToken]);
 
   return (
     <Box height="100vh">

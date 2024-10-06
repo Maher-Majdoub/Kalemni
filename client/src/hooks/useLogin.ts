@@ -1,3 +1,4 @@
+import { useAuthContext } from "../providers/AuthProvider";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import ApiService from "../services/apiService";
@@ -14,10 +15,13 @@ interface LoginData {
 const useLogin = () => {
   const apiService = new ApiService<LoginData, LoginInput>("/auth/login");
 
+  const [_, setAuthToken] = useAuthContext();
+
   const loginMutation = useMutation<LoginData, AxiosError, LoginInput>({
     mutationFn: (input) => apiService.post(input),
     onSuccess: (data) => {
       localStorage.setItem("auth-token", data.token);
+      setAuthToken(data.token);
     },
   });
 

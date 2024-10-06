@@ -5,15 +5,11 @@ import { IConversationSnapshot } from "./useConversations";
 export interface IAddMessage {
   conversationId: string;
   message: IMessage;
-  sentByMe?: boolean;
+  sentByMe: boolean;
 }
 
 const useAddMessage = (queryClient: QueryClient) => {
-  const addMessage = ({
-    conversationId,
-    message,
-    sentByMe = false,
-  }: IAddMessage) => {
+  const addMessage = ({ conversationId, message, sentByMe }: IAddMessage) => {
     queryClient.setQueryData(
       ["conversation", conversationId],
       (oldData: IConversation) => {

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { IUserSnapshot } from "./useFriends";
 import ApiService from "../services/apiService";
-import { AxiosError } from "axios";
 
 export interface IMessage {
   _id: string;
@@ -17,7 +17,7 @@ export interface IConversation {
   type: "private" | "group";
   participants: {
     user: IUserSnapshot;
-    lastSeenMessageId: string;
+    lastSawMessageId: string;
     isTyping?: boolean;
   }[];
   messages: IMessage[];
