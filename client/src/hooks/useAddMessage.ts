@@ -31,6 +31,7 @@ const useAddMessage = (queryClient: QueryClient) => {
               ...oldConversation,
               lastMessage: message,
               isLastMessageSentByMe: sentByMe,
+              cntNewMessages: oldConversation.cntNewMessages + 1,
             };
           }
         }

@@ -10,7 +10,10 @@ import { BsThreeDots } from "react-icons/bs";
 import { IoCall, IoVideocam } from "react-icons/io5";
 import { IConversation } from "../hooks/useConversation";
 import OnlineBadge from "./OnlineBadge";
-import defaultUserIcon from "../assets/default_user_icon.png";
+import {
+  getConversationPicture,
+  getConversationName,
+} from "../services/conversationServices";
 
 interface Props {
   conversation: IConversation;
@@ -18,8 +21,6 @@ interface Props {
 
 const ConversationHeader = ({ conversation }: Props) => {
   const isConnected = true;
-  const participants = conversation.participants;
-  const friend = participants[0];
 
   return (
     <>
@@ -30,11 +31,11 @@ const ConversationHeader = ({ conversation }: Props) => {
         >
           <Stack direction={"row"} spacing={1}>
             <OnlineBadge isConnected={isConnected}>
-              <Avatar src={friend.user.profilePicture || defaultUserIcon} />
+              <Avatar src={getConversationPicture(conversation)} />
             </OnlineBadge>
             <Stack>
               <Typography variant="body2">
-                {friend.user.firstName} {friend.user.lastName}
+                {getConversationName(conversation)}
               </Typography>
               <Typography variant="caption" color="textSecondary">
                 Online

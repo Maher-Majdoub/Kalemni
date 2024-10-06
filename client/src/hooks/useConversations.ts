@@ -9,11 +9,14 @@ export interface IConversationSnapshot {
   type: "p" | "g";
   participants: {
     user: IUserSnapshot;
-    lastSeenMessaageId: string;
+    lastSeenMessaageId?: string;
     isTyping?: boolean;
   }[];
-  lastMessage: IMessage | undefined;
+  cntNewMessages: number;
+  lastMessage: IMessage;
   isLastMessageSentByMe: boolean;
+  name?: string;
+  picture?: string;
 }
 
 const useConversations = () => {

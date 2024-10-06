@@ -1,7 +1,6 @@
 import { Stack, Box, Avatar } from "@mui/material";
 import { IConversation, IMessage } from "../hooks/useConversation";
 import MessageBox from "./MessageBox";
-import defaultUserIcon from "../assets/default_user_icon.png";
 import { Fragment } from "react/jsx-runtime";
 
 interface Props {
@@ -40,6 +39,7 @@ const MessagesList = ({ conversation }: Props) => {
   };
 
   let lastMessage: IMessage | undefined = undefined;
+  let currIndex = 0;
 
   return (
     <Stack
@@ -52,14 +52,22 @@ const MessagesList = ({ conversation }: Props) => {
         const isNewMessagesGroup =
           !lastMessage || !messagesAreInTheSameGroup(message, lastMessage);
 
+        const isFirstMessage =
+          currIndex + 1 >= conversation.messages.length ||
+          !messagesAreInTheSameGroup(
+            conversation.messages[currIndex + 1],
+            message
+          );
+
         lastMessage = message;
+        currIndex++;
         return (
           <Fragment key={message._id}>
             <Stack direction={"row"}>
               {getSeenUsers(message).map((user) => (
                 <Avatar
                   key={user._id}
-                  src={user.profilePicture || defaultUserIcon}
+                  src={user.profilePicture}
                   sx={{ width: 15, height: 15 }}
                 />
               ))}
@@ -72,6 +80,7 @@ const MessagesList = ({ conversation }: Props) => {
                 key={message._id}
                 message={message}
                 isNewMessagesGroup={isNewMessagesGroup}
+                isFirstMessage={isFirstMessage && conversation.type === "g"}
               />
             </Box>
           </Fragment>

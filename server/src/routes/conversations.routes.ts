@@ -6,11 +6,19 @@ const router = express.Router();
 const conversationsCotroller = new ConversationsController();
 
 router.get("/", authMiddleware, conversationsCotroller.getConversations);
+
+router.post(
+  "/create",
+  authMiddleware,
+  conversationsCotroller.createConversationGroup
+);
+
 router.post(
   "/:conversationId",
   authMiddleware,
   conversationsCotroller.sendMessage
 );
+
 router.get(
   "/:conversationId",
   authMiddleware,

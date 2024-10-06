@@ -7,14 +7,16 @@ import useConversation from "../hooks/useConversation";
 import { IUserSnapshot } from "../hooks/useFriends";
 import { useEffect } from "react";
 import { useSocketContext } from "../providers/SocketProvider";
+import useUserEnteredConversation from "../hooks/useUserEnteredConversation";
 
 const ChatBox = ({ conversationId }: { conversationId: string }) => {
   const { conversation } = useConversation(conversationId);
   const { sendMessage } = useSendMessage(conversationId);
   const socket = useSocketContext();
+  useUserEnteredConversation(conversationId);
 
   useEffect(() => {
-    if (conversation && conversation.messages && socket)
+    if (conversation && conversation.messages.length && socket)
       socket.emit("sawMessage", {
         conversationId: conversation._id,
         messageId: conversation.messages[0]._id,

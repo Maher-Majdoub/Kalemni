@@ -6,7 +6,6 @@ import {
   Typography,
 } from "@mui/material";
 import { IUserSnapshot } from "../hooks/useFriends";
-import defaultUserIcon from "../assets/default_user_icon.png";
 import useSendFriendRequest from "../hooks/useSendFriendRequest";
 
 const UserCard = ({ user }: { user: IUserSnapshot }) => {
@@ -21,7 +20,7 @@ const UserCard = ({ user }: { user: IUserSnapshot }) => {
   return (
     <Card>
       <Stack>
-        <img src={user.profilePicture || defaultUserIcon} width={200} />
+        <img src={user.profilePicture} width={200} />
         <Stack spacing={1} padding={2}>
           <Typography variant="h6">
             {user.firstName} {user.lastName}

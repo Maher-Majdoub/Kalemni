@@ -9,18 +9,19 @@ export interface IMessage {
   content: string;
   sentByMe: boolean;
   createdAt?: Date;
-  seenUsers?: IUserSnapshot[];
 }
 
 export interface IConversation {
   _id: string;
-  type: "private" | "group";
+  type: "p" | "g";
   participants: {
     user: IUserSnapshot;
-    lastSawMessageId: string;
+    lastSawMessageId?: string;
     isTyping?: boolean;
   }[];
   messages: IMessage[];
+  name?: string;
+  picture?: string;
 }
 
 const useConversation = (conversationId: string) => {

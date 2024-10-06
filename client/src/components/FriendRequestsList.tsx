@@ -7,7 +7,6 @@ import {
   Typography,
 } from "@mui/material";
 import useFriendRequests from "../hooks/useFriendRequests";
-import defaultUserIcon from "../assets/default_user_icon.png";
 import useRefuseFriendRequest from "../hooks/useRefuseFriendRequest";
 import { IUserSnapshot } from "../hooks/useFriends";
 import useAcceptFriendRequest from "../hooks/useAcceptFriendRequest";
@@ -33,7 +32,7 @@ const UserCard = ({ user, requestId }: Props) => {
   return (
     <Card>
       <Stack>
-        <img src={user.profilePicture || defaultUserIcon} width={200} />
+        <img src={user.profilePicture} width={200} />
         <Stack spacing={1} padding={2}>
           <Typography variant="h6">
             {user.firstName} {user.lastName}

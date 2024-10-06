@@ -1,5 +1,4 @@
 import { Card, Grid2, Stack, Typography } from "@mui/material";
-import defaultUserIcon from "../assets/default_user_icon.png";
 import useFriends from "../hooks/useFriends";
 
 const FriendsList = () => {
@@ -15,10 +14,7 @@ const FriendsList = () => {
           <Grid2 key={friend._id}>
             <Card>
               <Stack>
-                <img
-                  src={friend.profilePicture || defaultUserIcon}
-                  width={200}
-                />
+                <img src={friend.profilePicture} width={200} />
                 <Stack spacing={1} padding={2}>
                   <Typography variant="h6">
                     {friend.firstName} {friend.lastName}

@@ -45,7 +45,6 @@ const useSendMessage = (conversationId: string) => {
     },
     onSuccess: (data, _, context) => {
       // context: the random generated id of the message
-
       queryClient.setQueryData(
         ["conversation", conversationId],
         (oldData: IConversation) => {
