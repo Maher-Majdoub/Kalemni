@@ -1,7 +1,8 @@
+import { getSocketId, isConnected } from "../socket";
 import { Request, Response } from "express";
+import { Types } from "mongoose";
+import { io } from "../app";
 import User from "../models/user.model";
-import { io, getSocketId, isConnected } from "../app";
-import mongoose, { Types } from "mongoose";
 import Conversation from "../models/conversation.model";
 
 class UserController {

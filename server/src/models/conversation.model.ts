@@ -14,7 +14,7 @@ interface IConversation {
   type: "p" | "g";
   participants: {
     user: IUserSnapshot;
-    lastSeenMessageId: Types.ObjectId;
+    lastSawMessageId: Types.ObjectId;
   }[];
   messages: IMessage[];
   createdAt?: Date;
@@ -42,7 +42,7 @@ const conversationSchema = new Schema<IConversation, ConversationModel>(
       enum: ["p", "g"],
     },
     participants: [
-      { user: userSnapshotSchema, lastSeenMessageId: { type: Types.ObjectId } },
+      { user: userSnapshotSchema, lastSawMessageId: { type: Types.ObjectId } },
     ],
     messages: [messageSchema],
   },

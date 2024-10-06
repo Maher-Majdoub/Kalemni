@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { Types } from "mongoose";
-import { getSocketId, io } from "../app";
+import { io } from "../app";
+import { getSocketId } from "../socket";
 import Conversation from "../models/conversation.model";
 import User from "../models/user.model";
 
@@ -88,6 +89,7 @@ class ConversationsController {
       _id: new Types.ObjectId(),
       sender: me.getSnapshot(),
       content: req.body.message.content as string,
+      createdAt: new Date(Date.now()),
     };
 
     for (const participant of conversation.participants) {
