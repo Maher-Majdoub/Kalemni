@@ -4,7 +4,8 @@ import { IUserSnapshot, userSnapshotSchema } from "./user.model";
 interface IMessage {
   _id: Types.ObjectId;
   sender: IUserSnapshot;
-  content: String;
+  type: string;
+  content: string;
   updatedAt?: Date;
   createdAt?: Date;
 }
@@ -28,6 +29,12 @@ type ConversationModel = Model<IConversation, {}>;
 const messageSchema = new Schema(
   {
     sender: userSnapshotSchema,
+    type: {
+      type: String,
+      required: true,
+      enum: ["text", "audio", "image", "video"],
+      default: "text",
+    },
     content: {
       type: String,
       required: true,

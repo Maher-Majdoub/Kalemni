@@ -4,8 +4,10 @@ import api from "./routes/api.routes";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { handleIoConnection } from "./socket";
+import path from "path";
 
 const app = express();
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(cors());
 

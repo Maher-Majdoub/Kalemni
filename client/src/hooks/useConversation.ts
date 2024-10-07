@@ -6,6 +6,7 @@ import ApiService from "../services/apiService";
 export interface IMessage {
   _id: string;
   sender: IUserSnapshot;
+  type: "text" | "audio" | "image" | "video";
   content: string;
   sentByMe: boolean;
   createdAt?: Date;

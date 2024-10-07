@@ -78,6 +78,54 @@ class ConversationsController {
     return res.status(404).send({ message: "Conversation not found." });
   };
 
+  sendAudioRecord = async (req: Request, res: Response) => {
+    const conversationId = req.params["conversationId"];
+
+    if (!Types.ObjectId.isValid(conversationId))
+      return res.status(400).send({ message: "Invalid Conversation ID" });
+
+    const conversation = await Conversation.findById(conversationId);
+
+    const me = await User.findById(req.body.user._id);
+    if (!me) return res.status(500).send({});
+
+    if (!conversation) {
+      return res.status(404).send({ message: "Conversation not found." });
+    }
+
+    const message = {
+      _id: new Types.ObjectId(),
+      sender: me.getSnapshot(),
+      type: "audio",
+      content: `/uploads/conversations/${conversationId}/${
+        req.file?.filename as string
+      }`,
+      createdAt: new Date(Date.now()),
+    };
+
+    for (const participant of conversation.participants) {
+      if (participant.user._id.equals(req.body.user._id)) {
+        conversation.messages.unshift(message);
+        await conversation.save();
+        res.status(201).send(message);
+        break;
+      }
+    }
+
+    for (const participant of conversation.participants) {
+      const participantId = String(participant.user._id);
+      if (me._id.equals(participantId)) continue;
+
+      const socketId = getSocketId(participantId);
+      if (socketId) {
+        io.to(socketId).emit("newMessage", {
+          conversationId: conversationId,
+          message: message,
+        });
+      }
+    }
+  };
+
   sendMessage = async (req: Request, res: Response) => {
     const conversationId = req.params["conversationId"];
 
@@ -98,6 +146,7 @@ class ConversationsController {
     const message = {
       _id: new Types.ObjectId(),
       sender: me.getSnapshot(),
+      type: "text",
       content: req.body.message.content as string,
       createdAt: new Date(Date.now()),
     };

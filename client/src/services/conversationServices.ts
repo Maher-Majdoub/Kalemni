@@ -22,11 +22,14 @@ export const getConversationName = (
 
 export const getMessageSnapshot = (conversation: IConversationSnapshot) => {
   const lastMessage = conversation.lastMessage;
+
   if (!lastMessage) return "Start conversation";
   let message = "";
   if (!conversation.isLastMessageSentByMe)
     message += `${lastMessage.sender.firstName}: `;
 
-  message += lastMessage.content;
+  if (lastMessage.type == "audio") message += "Sent a voice message";
+  else message += lastMessage.content;
+
   return message;
 };

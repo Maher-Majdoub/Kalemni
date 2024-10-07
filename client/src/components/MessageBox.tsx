@@ -37,7 +37,16 @@ const MessageBox = ({ message, isNewMessagesGroup, isFirstMessage }: Props) => {
               borderRadius: "8px",
             }}
           >
-            <Typography>{message.content}</Typography>
+            {message.type === "text" ? (
+              <Typography>{message.content}</Typography>
+            ) : (
+              <audio controls>
+                <source
+                  src={`http://localhost:3000${message.content}`}
+                  type="audio/wav"
+                />
+              </audio>
+            )}
           </Box>
         </Stack>
       </Stack>

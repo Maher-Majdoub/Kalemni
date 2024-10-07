@@ -75,6 +75,7 @@ const MessagesList = ({ conversation }: Props) => {
             <Box
               alignSelf={message.sentByMe ? "flex-end" : "flex-start"}
               paddingBottom={isNewMessagesGroup ? 1 : 0.4}
+              maxWidth="70%"
             >
               <MessageBox
                 key={message._id}

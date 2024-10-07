@@ -1,33 +1,29 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { IConversation, IMessage } from "./useConversation";
+import ApiService from "../services/apiService";
 import { AxiosError } from "axios";
 import useAddMessage from "./useAddMessage";
+import { IMessage, IConversation } from "./useConversation";
 import useProfile from "./useProfile";
-import ApiService from "../services/apiService";
-
-export interface MessageInput {
-  message: { content: string };
-}
 
 const getRandomInt = () => Math.floor(Math.random() * 100000000).toString();
 
-const useSendMessage = (conversationId: string) => {
-  const apiService = new ApiService<IMessage, MessageInput>(
-    `/users/me/conversations/${conversationId}`
+const useSendAudioRecord = (conversationId: string) => {
+  const apiService = new ApiService<IMessage, FormData>(
+    `/users/me/conversations/${conversationId}/audio`
   );
 
   const queryClient = useQueryClient();
   const { profile } = useProfile();
 
-  const mutation = useMutation<IMessage, AxiosError, MessageInput, string>({
-    mutationFn: apiService.post,
-    onMutate: (variables) => {
+  const mutation = useMutation<IMessage, AxiosError, FormData, string>({
+    mutationFn: apiService.postFormData,
+    onMutate: () => {
       const { addMessage } = useAddMessage(queryClient);
       const randomId = getRandomInt();
       const newMessage: IMessage = {
         _id: randomId,
-        content: variables.message.content,
-        type: "text",
+        content: "",
+        type: "audio",
         sender: {
           _id: profile?._id as string,
           firstName: profile?.firstName as string,
@@ -53,7 +49,8 @@ const useSendMessage = (conversationId: string) => {
           return {
             ...oldData,
             messages: oldData.messages.map((message) => {
-              if (message._id === context) return { ...message, _id: data._id };
+              if (message._id === context)
+                return { ...message, _id: data._id, content: data.content };
               return message;
             }),
           };
@@ -63,12 +60,12 @@ const useSendMessage = (conversationId: string) => {
   });
 
   return {
-    sendMessage: mutation.mutate,
-    isSendMessagePending: mutation.isPending,
-    isSendMessageSuccess: mutation.isSuccess,
-    isSendMessageError: mutation.isError,
-    sendMessageError: mutation.error?.response?.data,
+    sendAudioRecord: mutation.mutate,
+    isSendAudioRecordPending: mutation.isPending,
+    isSendAudioRecordSuccess: mutation.isSuccess,
+    isSendAudioRecordError: mutation.isError,
+    sendAudioRecordError: mutation.error?.response?.data,
   };
 };
 
-export default useSendMessage;
+export default useSendAudioRecord;
