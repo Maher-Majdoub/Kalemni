@@ -11,7 +11,7 @@ import useUserEnteredConversation from "../hooks/useUserEnteredConversation";
 
 const ChatBox = ({ conversationId }: { conversationId: string }) => {
   const { conversation } = useConversation(conversationId);
-  const { sendMessage } = useSendMessage(conversationId);
+  const { sendMessage } = useSendMessage(conversationId, "text");
   const socket = useSocketContext();
   useUserEnteredConversation(conversationId);
 

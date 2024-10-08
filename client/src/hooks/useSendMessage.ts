@@ -1,33 +1,48 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { IConversation, IMessage } from "./useConversation";
+import { IConversation, IMessage, MessageType } from "./useConversation";
 import { AxiosError } from "axios";
 import useAddMessage from "./useAddMessage";
 import useProfile from "./useProfile";
 import ApiService from "../services/apiService";
 
-export interface MessageInput {
-  message: { content: string };
+export interface IMessageInput {
+  content: string;
+  type: MessageType;
+  audio?: Blob;
 }
 
 const getRandomInt = () => Math.floor(Math.random() * 100000000).toString();
 
-const useSendMessage = (conversationId: string) => {
-  const apiService = new ApiService<IMessage, MessageInput>(
-    `/users/me/conversations/${conversationId}`
+const useSendMessage = (conversationId: string, messageType: MessageType) => {
+  const apiService = new ApiService<IMessage, FormData>(
+    `/users/me/conversations/${conversationId}/messages/${messageType}`
   );
+
+  const sendMessage = async ({ content, audio, type }: IMessageInput) => {
+    const formData = new FormData();
+    formData.append(
+      "message",
+      JSON.stringify({ content: content, type: type })
+    );
+
+    if (type === "audio" && audio)
+      formData.append("audio", audio, "recording.wav");
+
+    return apiService.postFormData(formData);
+  };
 
   const queryClient = useQueryClient();
   const { profile } = useProfile();
 
-  const mutation = useMutation<IMessage, AxiosError, MessageInput, string>({
-    mutationFn: apiService.post,
+  const mutation = useMutation<IMessage, AxiosError, IMessageInput, string>({
+    mutationFn: (data) => sendMessage(data),
     onMutate: (variables) => {
       const { addMessage } = useAddMessage(queryClient);
       const randomId = getRandomInt();
       const newMessage: IMessage = {
         _id: randomId,
-        content: variables.message.content,
-        type: "text",
+        content: variables.content,
+        type: variables.type,
         sender: {
           _id: profile?._id as string,
           firstName: profile?.firstName as string,
@@ -53,7 +68,7 @@ const useSendMessage = (conversationId: string) => {
           return {
             ...oldData,
             messages: oldData.messages.map((message) => {
-              if (message._id === context) return { ...message, _id: data._id };
+              if (message._id === context) return { ...message, ...data };
               return message;
             }),
           };

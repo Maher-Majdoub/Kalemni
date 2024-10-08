@@ -2,7 +2,6 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import SignupPage from "./pages/SignupPage";
-import RecordAudio from "./pages/RecordAudio";
 
 const router = createBrowserRouter([
   { path: "/", element: <Navigate to="/messages" /> },
@@ -14,7 +13,6 @@ const router = createBrowserRouter([
   { path: "/settings", element: <HomePage /> },
   { path: "/login", element: <LoginPage /> },
   { path: "/signup", element: <SignupPage /> },
-  { path: "/record", element: <RecordAudio /> },
 ]);
 
 export default router;

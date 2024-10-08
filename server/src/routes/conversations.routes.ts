@@ -1,36 +1,23 @@
 import express from "express";
-import ConversationsController from "../controllers/conversations.controller";
 import authMiddleware from "../middlewares/auth.middleware";
-import fileUploaderMiddleware from "../middlewares/fileUploader.milddleware";
+import messageMiddleware from "../middlewares/message.milddleware";
+import {
+  getConversations,
+  createConversationGroup,
+  sendMessage,
+  getConversation,
+} from "../controllers/conversations.controller";
 
 const router = express.Router();
-const conversationsCotroller = new ConversationsController();
 
-router.get("/", authMiddleware, conversationsCotroller.getConversations);
-
+router.get("/", authMiddleware, getConversations);
+router.post("/create", authMiddleware, createConversationGroup);
+router.get("/:conversationId", authMiddleware, getConversation);
 router.post(
-  "/create",
+  "/:conversationId/messages/:messageType",
   authMiddleware,
-  conversationsCotroller.createConversationGroup
-);
-
-router.post(
-  "/:conversationId",
-  authMiddleware,
-  conversationsCotroller.sendMessage
-);
-
-router.post(
-  "/:conversationId/audio",
-  authMiddleware,
-  fileUploaderMiddleware,
-  conversationsCotroller.sendAudioRecord
-);
-
-router.get(
-  "/:conversationId",
-  authMiddleware,
-  conversationsCotroller.getConversation
+  messageMiddleware,
+  sendMessage
 );
 
 export default router;

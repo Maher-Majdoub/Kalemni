@@ -1,44 +1,36 @@
 import express from "express";
 import authMiddleware from "../middlewares/auth.middleware";
-import UserController from "../controllers/user.controller";
+import {
+  getProfile,
+  getFriends,
+  getOnlineFriends,
+  getNewFriends,
+  getFriendRequests,
+  acceptFriendRequest,
+  refuseFriendRequest,
+  sendFriendRequest,
+} from "../controllers/user.controller";
 
 const router = express.Router();
-const userController = new UserController();
 
-router.get("/me", authMiddleware, userController.getProfile);
-
-router.get("/me/friends", authMiddleware, userController.getFriends);
-
-router.get(
-  "/me/friends/online",
-  authMiddleware,
-  userController.getOnlineFriends
-);
-
-router.get("/find", authMiddleware, userController.getNewFriends);
-
-router.get(
-  "/me/friends/requests",
-  authMiddleware,
-  userController.getFriendRequests
-);
+router.get("/me", authMiddleware, getProfile);
+router.get("/me/friends", authMiddleware, getFriends);
+router.get("/me/friends/online", authMiddleware, getOnlineFriends);
+router.get("/find", authMiddleware, getNewFriends);
+router.get("/me/friends/requests", authMiddleware, getFriendRequests);
 
 router.post(
   "/me/friends/requests/:requestId/accept",
   authMiddleware,
-  userController.acceptFriendRequest
+  acceptFriendRequest
 );
 
 router.post(
   "/me/friends/requests/:requestId/refuse",
   authMiddleware,
-  userController.refuseFriendRequest
+  refuseFriendRequest
 );
 
-router.post(
-  "/:userId/friend-requests",
-  authMiddleware,
-  userController.sendFriendRequest
-);
+router.post("/:userId/friend-requests", authMiddleware, sendFriendRequest);
 
 export default router;

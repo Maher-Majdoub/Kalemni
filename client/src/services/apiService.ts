@@ -15,7 +15,7 @@ class ApiService<TData, TInput = object> {
       })
       .then((res) => res.data);
 
-  post = (input: object) =>
+  post = (input: TInput) =>
     apiClient
       .post<TInput, AxiosResponse<TData>>(this.endpoint, input, {
         headers: { "x-auth-token": localStorage.getItem("auth-token") },

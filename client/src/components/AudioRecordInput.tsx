@@ -2,7 +2,7 @@ import { Stack, IconButton } from "@mui/material";
 import { useRef, useEffect } from "react";
 import { BsSendFill } from "react-icons/bs";
 import { TbTrash } from "react-icons/tb";
-import useSendAudioRecord from "../hooks/useSendAudioRecord";
+import useSendMessage from "../hooks/useSendMessage";
 
 interface Props {
   conversationId: string;
@@ -11,7 +11,7 @@ interface Props {
 
 const AudioRecordInput = ({ conversationId, onEnd }: Props) => {
   let audioChunks: Blob[] = [];
-  const { sendAudioRecord } = useSendAudioRecord(conversationId);
+  const { sendMessage } = useSendMessage(conversationId, "audio");
   const mediaRecorderRef = useRef<MediaRecorder>();
   let sendRecord = false;
 
@@ -28,9 +28,7 @@ const AudioRecordInput = ({ conversationId, onEnd }: Props) => {
       mediaRecorderRef.current.onstop = () => {
         if (sendRecord) {
           const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
-          const formData = new FormData();
-          formData.append("audio", audioBlob, "recording.wav");
-          sendAudioRecord(formData);
+          sendMessage({ type: "audio", content: "", audio: audioBlob });
         }
         audioChunks = [];
       };

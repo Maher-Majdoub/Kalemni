@@ -9,10 +9,11 @@ import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useSocketContext } from "../providers/SocketProvider";
 import AudioRecordInput from "./AudioRecordInput";
+import { IMessageInput } from "../hooks/useSendMessage";
 
 interface Props {
   conversationId: string;
-  onSendMessage({ message }: { message: { content: string } }): void;
+  onSendMessage(data: IMessageInput): void;
 }
 
 const MessageInputSection = ({ conversationId, onSendMessage }: Props) => {
@@ -34,7 +35,7 @@ const MessageInputSection = ({ conversationId, onSendMessage }: Props) => {
   };
 
   const onSubmit = handleSubmit((data) => {
-    onSendMessage({ message: { content: data.message } });
+    onSendMessage({ content: data.message, type: "text" });
     setValue("message", "");
     handleInputChanges("");
   });
