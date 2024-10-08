@@ -9,11 +9,12 @@ interface Props {
   onEnd(): void;
 }
 
+let sendRecord = false;
+
 const AudioRecordInput = ({ conversationId, onEnd }: Props) => {
   let audioChunks: Blob[] = [];
-  const { sendMessage } = useSendMessage(conversationId, "audio");
+  const { sendMessage } = useSendMessage(conversationId);
   const mediaRecorderRef = useRef<MediaRecorder>();
-  let sendRecord = false;
 
   const startRecording = async () => {
     try {
@@ -28,6 +29,7 @@ const AudioRecordInput = ({ conversationId, onEnd }: Props) => {
       mediaRecorderRef.current.onstop = () => {
         if (sendRecord) {
           const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+
           sendMessage({ type: "audio", content: "", audio: audioBlob });
         }
         audioChunks = [];
@@ -53,7 +55,6 @@ const AudioRecordInput = ({ conversationId, onEnd }: Props) => {
         children={<TbTrash />}
         size="small"
         color="primary"
-        type="submit"
         onClick={() => {
           stopRecording(false);
         }}
@@ -63,7 +64,6 @@ const AudioRecordInput = ({ conversationId, onEnd }: Props) => {
         children={<BsSendFill />}
         size="small"
         color="primary"
-        type="submit"
         onClick={() => {
           stopRecording(true);
         }}

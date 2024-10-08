@@ -83,16 +83,9 @@ export const sendMessage = async (req: Request, res: Response) => {
   if (!Types.ObjectId.isValid(conversationId))
     return res.status(400).send({ message: "Invalid Conversation ID" });
 
-  const conversation = await Conversation.findById(conversationId);
-
   const me = await User.findById(req.body.user._id);
-
   // TODO: implement this
   if (!me) return res.status(500).send({});
-
-  if (!conversation) {
-    return res.status(404).send({ message: "Conversation not found." });
-  }
 
   const message = {
     _id: new Types.ObjectId(),
@@ -101,15 +94,30 @@ export const sendMessage = async (req: Request, res: Response) => {
     content: req.body.message.content as string,
     createdAt: new Date(Date.now()),
   };
+  const conversation = await Conversation.findByIdAndUpdate(conversationId, {
+    $push: {
+      messages: {
+        $each: [message],
+        $position: 0,
+      },
+    },
+  });
 
-  for (const participant of conversation.participants) {
-    if (participant.user._id.equals(req.body.user._id)) {
-      conversation.messages.unshift(message);
-      await conversation.save();
-      res.status(201).send(message);
-      break;
-    }
+  if (!conversation) {
+    return res.status(404).send({ message: "Conversation not found." });
   }
+
+  // await Conversation.findByIdAndUpdate(conversation._id, conversation);
+
+  res.status(201).send(message);
+
+  // for (const participant of conversation.participants) {
+  //   if (participant.user._id.equals(req.body.user._id)) {
+  //     conversation.messages.unshift(message);
+  //     res.status(201).send(message);
+  //     break;
+  //   }
+  // }
 
   for (const participant of conversation.participants) {
     const participantId = String(participant.user._id);

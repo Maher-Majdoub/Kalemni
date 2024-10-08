@@ -3,7 +3,7 @@ import { AxiosError } from "axios";
 import { IUserSnapshot } from "./useFriends";
 import ApiService from "../services/apiService";
 
-export type MessageType = "text" | "audio";
+export type MessageType = "text" | "audio" | "image" | "video";
 
 export interface IMessage {
   _id: string;

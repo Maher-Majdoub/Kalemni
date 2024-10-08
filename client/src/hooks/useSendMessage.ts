@@ -9,24 +9,35 @@ export interface IMessageInput {
   content: string;
   type: MessageType;
   audio?: Blob;
+  video?: Blob;
+  image?: Blob;
 }
 
 const getRandomInt = () => Math.floor(Math.random() * 100000000).toString();
 
-const useSendMessage = (conversationId: string, messageType: MessageType) => {
-  const apiService = new ApiService<IMessage, FormData>(
-    `/users/me/conversations/${conversationId}/messages/${messageType}`
-  );
+const useSendMessage = (conversationId: string) => {
+  const sendMessage = async ({
+    content,
+    audio,
+    video,
+    image,
+    type,
+  }: IMessageInput) => {
+    const apiService = new ApiService<IMessage, FormData>(
+      `/users/me/conversations/${conversationId}/messages/${type}`
+    );
 
-  const sendMessage = async ({ content, audio, type }: IMessageInput) => {
+    console.log(type);
+
     const formData = new FormData();
     formData.append(
       "message",
       JSON.stringify({ content: content, type: type })
     );
 
-    if (type === "audio" && audio)
-      formData.append("audio", audio, "recording.wav");
+    if (type === "audio" && audio) formData.append("audio", audio);
+    if (type === "video" && video) formData.append("video", video);
+    if (type === "image" && image) formData.append("image", image);
 
     return apiService.postFormData(formData);
   };

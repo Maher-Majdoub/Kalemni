@@ -29,6 +29,8 @@ export const getMessageSnapshot = (conversation: IConversationSnapshot) => {
     message += `${lastMessage.sender.firstName}: `;
 
   if (lastMessage.type == "audio") message += "Sent a voice message";
+  else if (lastMessage.type === "image") message += "Sent an image";
+  else if (lastMessage.type === "video") message += "Sent a video";
   else message += lastMessage.content;
 
   return message;

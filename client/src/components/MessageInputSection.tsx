@@ -3,20 +3,24 @@ import { BiSolidLike } from "react-icons/bi";
 import { BsSendFill } from "react-icons/bs";
 import { FaSmile } from "react-icons/fa";
 import { GrAttachment } from "react-icons/gr";
-import { IoMdAddCircleOutline } from "react-icons/io";
 import { PiMicrophone } from "react-icons/pi";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import { useSocketContext } from "../providers/SocketProvider";
-import AudioRecordInput from "./AudioRecordInput";
 import { IMessageInput } from "../hooks/useSendMessage";
+import AudioRecordInput from "./AudioRecordInput";
 
 interface Props {
   conversationId: string;
+  onOpenFileDialog(): void;
   onSendMessage(data: IMessageInput): void;
 }
 
-const MessageInputSection = ({ conversationId, onSendMessage }: Props) => {
+const MessageInputSection = ({
+  conversationId,
+  onSendMessage,
+  onOpenFileDialog,
+}: Props) => {
   const { register, handleSubmit, setValue } = useForm();
   const [isWritting, setIsWritting] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -45,17 +49,16 @@ const MessageInputSection = ({ conversationId, onSendMessage }: Props) => {
       {!isRecording && (
         <Stack direction="row" spacing={1}>
           <Stack direction="row" spacing={1}>
-            <IconButton children={<IoMdAddCircleOutline />} size="small" />
-            {!isWritting && (
-              <>
-                <IconButton
-                  children={<PiMicrophone />}
-                  size="small"
-                  onClick={() => setIsRecording(true)}
-                />
-                <IconButton children={<GrAttachment />} size="small" />
-              </>
-            )}
+            <IconButton
+              children={<PiMicrophone />}
+              size="small"
+              onClick={() => setIsRecording(true)}
+            />
+            <IconButton
+              children={<GrAttachment />}
+              size="small"
+              onClick={onOpenFileDialog}
+            />
           </Stack>
           <Box width="100%">
             <form autoComplete="off" onSubmit={onSubmit}>

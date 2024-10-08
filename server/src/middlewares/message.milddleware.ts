@@ -9,7 +9,6 @@ const prepareStorage = (messageType: string) => {
       const conversationId = req.params["conversationId"];
       const rootDir = path.resolve(__dirname, "..");
       const targetDir = `uploads/conversations/${conversationId}/${messageType}`;
-
       const uploadDir = path.join(rootDir, targetDir);
 
       if (!fs.existsSync(uploadDir))
@@ -44,9 +43,8 @@ const messageMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
   const upload = prepareStorage(messageType);
 
-  upload.single(messageType)(req, res, () => {
+  upload.single(messageType)(req, res, (err) => {
     parseRequestBody(req);
-
     req.body.message.content = `/uploads/conversations/${conversationId}/${messageType}/${
       req.file?.filename as string
     }`;
