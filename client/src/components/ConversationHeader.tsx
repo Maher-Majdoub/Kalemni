@@ -14,6 +14,7 @@ import {
   getConversationPicture,
   getConversationName,
 } from "../services/conversationServices";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   conversation: IConversation;
@@ -21,6 +22,12 @@ interface Props {
 
 const ConversationHeader = ({ conversation }: Props) => {
   const isConnected = true;
+
+  const navigate = useNavigate();
+
+  const call = () => {
+    navigate(`/call/${conversation._id}`);
+  };
 
   return (
     <>
@@ -44,7 +51,11 @@ const ConversationHeader = ({ conversation }: Props) => {
           </Stack>
           <Stack direction={"row"} spacing={1}>
             <IconButton children={<IoCall />} color="primary" />
-            <IconButton children={<IoVideocam />} color="primary" />
+            <IconButton
+              children={<IoVideocam />}
+              color="primary"
+              onClick={call}
+            />
             <IconButton children={<BsThreeDots />} color="primary" />
           </Stack>
         </Stack>

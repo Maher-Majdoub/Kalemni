@@ -9,6 +9,8 @@ const userSocketMap = new Map<
   { socketId: string; isConnected: boolean }
 >();
 
+const roomUsersMap = new Map<string, string[]>();
+
 const getSocketId = (userId: string) => userSocketMap.get(userId)?.socketId;
 
 const isConnected = (userId: string) =>
@@ -148,6 +150,66 @@ const handleIoConnection = async (socket: Socket) => {
       }
     }
   );
+
+  socket.on("join-room", ({ conversationId }) => {
+    if (!roomUsersMap.get(conversationId)) {
+      roomUsersMap.set(conversationId, []);
+    }
+
+    const usersInRoom = (roomUsersMap.get(conversationId) as string[]).filter(
+      (id) => id !== userId
+    );
+
+    roomUsersMap.set(conversationId, [...usersInRoom, userId]);
+
+    socket.emit("all-users", usersInRoom);
+  });
+
+  socket.on("start-call", async ({ conversationId }) => {
+    const conversation = await Conversation.findById(conversationId);
+
+    conversation?.participants.forEach((participant) => {
+      if (!participant.user._id.equals(userId)) {
+        const socketId = getSocketId(participant.user._id.toString());
+        if (socketId) io.to(socketId).emit("new-call", { conversation });
+      }
+    });
+  });
+
+  socket.on("sending-signal", (payload) => {
+    const socketId = getSocketId(payload.userToSignal);
+    if (socketId) {
+      io.to(socketId).emit("user-joined", {
+        signal: payload.signal,
+        callerID: userId,
+      });
+    }
+  });
+
+  socket.on("returning-signal", (payload) => {
+    const socketId = getSocketId(payload.callerID);
+
+    if (socketId)
+      io.to(socketId).emit("receiving-returned-signal", {
+        signal: payload.signal,
+        id: userId,
+      });
+  });
+
+  socket.on("leave", ({ conversationId }) => {
+    const users = roomUsersMap.get(conversationId);
+    if (!users) return;
+
+    roomUsersMap.set(
+      conversationId,
+      users.filter((id) => id !== userId)
+    );
+
+    roomUsersMap.get(conversationId)?.forEach((id) => {
+      const socketId = getSocketId(id);
+      if (socketId) io.to(socketId).emit("user-leaved", { userId });
+    });
+  });
 };
 
 export { getSocketId, isConnected, handleIoConnection };
