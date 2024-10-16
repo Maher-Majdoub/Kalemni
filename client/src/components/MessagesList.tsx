@@ -45,8 +45,8 @@ const MessagesList = ({ conversation }: Props) => {
     <Stack
       flexDirection="column-reverse"
       alignItems="flex-end"
-      height="100%"
       overflow="auto"
+      flex={1}
     >
       {conversation.messages.map((message) => {
         const isNewMessagesGroup =
@@ -61,21 +61,25 @@ const MessagesList = ({ conversation }: Props) => {
 
         lastMessage = message;
         currIndex++;
+        const seenUsers = getSeenUsers(message);
+
         return (
           <Fragment key={message._id}>
-            <Stack direction={"row"}>
-              {getSeenUsers(message).map((user) => (
-                <Avatar
-                  key={user._id}
-                  src={user.profilePicture}
-                  sx={{ width: 15, height: 15 }}
-                />
-              ))}
-            </Stack>
+            {seenUsers.length > 0 && (
+              <Stack direction={"row"} sx={{ marginBottom: "4px" }}>
+                {seenUsers.map((user) => (
+                  <Avatar
+                    key={user._id}
+                    src={user.profilePicture}
+                    sx={{ width: 15, height: 15 }}
+                  />
+                ))}
+              </Stack>
+            )}
             <Box
               alignSelf={message.sentByMe ? "flex-end" : "flex-start"}
               paddingBottom={isNewMessagesGroup ? 1 : 0.4}
-              maxWidth="70%"
+              width="100%"
             >
               <MessageBox
                 key={message._id}

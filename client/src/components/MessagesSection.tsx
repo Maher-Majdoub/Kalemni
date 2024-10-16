@@ -5,54 +5,41 @@ import ConversationsList from "./ConversationsList";
 import AddConversationDialog from "./AddConversationDialog";
 import { useState } from "react";
 
-interface Props {
-  selectedConversationId: string | undefined;
-  onSelectConversation(conversationId: string): void;
-}
-
-const MessagesSection = ({
-  selectedConversationId,
-  onSelectConversation,
-}: Props) => {
+const MessagesSection = () => {
   const [showCreateGroupDialog, setShowCreateGroupDialog] = useState(false);
 
   return (
-    <>
-      <Stack spacing={1}>
+    <Stack flex={1} spacing={1} minHeight={0}>
+      <Stack
+        direction="row"
+        alignItems="center"
+        justifyContent="space-between"
+        paddingLeft={2}
+        paddingRight={2}
+      >
+        <Typography variant="subtitle1">Messages</Typography>
+        <IconButton onClick={() => setShowCreateGroupDialog(true)}>
+          <IoIosAddCircleOutline />
+        </IconButton>
+      </Stack>
+      <Box paddingLeft={2} paddingRight={2}>
         <Stack
           direction="row"
           alignItems="center"
-          justifyContent="space-between"
-          paddingLeft={3}
-          paddingRight={3}
+          padding={1}
+          borderRadius={2}
+          sx={{ backgroundColor: "white" }}
         >
-          <Typography variant="subtitle1">Messages</Typography>
-          <IconButton onClick={() => setShowCreateGroupDialog(true)}>
-            <IoIosAddCircleOutline />
-          </IconButton>
+          <CiSearch size={20} />
+          <input placeholder="Search" />
         </Stack>
-        <Box paddingLeft={3} paddingRight={3}>
-          <Stack
-            direction="row"
-            alignItems="center"
-            padding={1}
-            borderRadius={2}
-            sx={{ backgroundColor: "white" }}
-          >
-            <CiSearch size={20} />
-            <input placeholder="Search" />
-          </Stack>
-        </Box>
-        <ConversationsList
-          selectedConversationId={selectedConversationId}
-          onSelectConversation={onSelectConversation}
-        />
-      </Stack>
+      </Box>
+      <ConversationsList />
       <AddConversationDialog
         open={showCreateGroupDialog}
         onClose={() => setShowCreateGroupDialog(false)}
       />
-    </>
+    </Stack>
   );
 };
 

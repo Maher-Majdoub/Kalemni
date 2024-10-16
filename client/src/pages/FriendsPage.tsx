@@ -1,8 +1,9 @@
-import { Box, Tab, Tabs, Typography } from "@mui/material";
+import { Stack, Tab, Tabs } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import FriendsList from "../components/FriendsList";
 import NewFriendsList from "../components/NewFriendsList";
 import FriendRequestsList from "../components/FriendRequestsList";
+import NavBarContainer from "../components/NavBarContainer";
 
 enum Navigations {
   MY = "my",
@@ -16,22 +17,23 @@ const FriendsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Box>
-      <Typography variant="h5">Friends</Typography>
-      <Tabs
-        value={currPage}
-        onChange={(_, value) => {
-          navigate(`/friends/${value}`);
-        }}
-      >
-        <Tab label="All My Friends" value={Navigations.MY} />
-        <Tab label="Friends Requests" value={Navigations.REQUESTS} />
-        <Tab label="Find New Friends" value={Navigations.FIND} />
-      </Tabs>
-      {currPage === Navigations.MY && <FriendsList />}
-      {currPage === Navigations.REQUESTS && <FriendRequestsList />}
-      {currPage === Navigations.FIND && <NewFriendsList />}
-    </Box>
+    <NavBarContainer>
+      <Stack flex={1} minHeight={0} padding={1} spacing={1}>
+        <Tabs
+          value={currPage}
+          onChange={(_, value) => {
+            navigate(`/friends/${value}`);
+          }}
+        >
+          <Tab label="My Friends" value={Navigations.MY} />
+          <Tab label="Requests" value={Navigations.REQUESTS} />
+          <Tab label="New Friends" value={Navigations.FIND} />
+        </Tabs>
+        {currPage === Navigations.MY && <FriendsList />}
+        {currPage === Navigations.REQUESTS && <FriendRequestsList />}
+        {currPage === Navigations.FIND && <NewFriendsList />}
+      </Stack>
+    </NavBarContainer>
   );
 };
 

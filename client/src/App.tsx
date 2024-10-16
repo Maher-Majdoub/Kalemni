@@ -5,7 +5,7 @@ import router from "./routes";
 import AuthProvider from "./providers/AuthProvider";
 import SocketProvider from "./providers/SocketProvider";
 import OnlineUsersProvider from "./providers/OnlineFriendsProvider";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import WindowTypeProvider from "./providers/WindowTypeProvider";
 
 const queryClient = new QueryClient();
 const theme = createTheme({
@@ -21,8 +21,10 @@ function App() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider theme={theme}>
             <OnlineUsersProvider>
-              <RouterProvider router={router} />
-              <ReactQueryDevtools />
+              <WindowTypeProvider>
+                <RouterProvider router={router} />
+                {/* <ReactQueryDevtools /> */}
+              </WindowTypeProvider>
             </OnlineUsersProvider>
           </ThemeProvider>
         </QueryClientProvider>

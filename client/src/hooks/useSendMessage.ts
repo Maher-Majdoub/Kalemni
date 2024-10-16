@@ -27,8 +27,6 @@ const useSendMessage = (conversationId: string) => {
       `/users/me/conversations/${conversationId}/messages/${type}`
     );
 
-    console.log(type);
-
     const formData = new FormData();
     formData.append(
       "message",

@@ -12,3 +12,12 @@ input {
     font-size: small;
     background-color: transparent;
 }
+
+audio {
+    width: 250px;
+    height: 50px;
+}
+
+image {
+    object-fit: contain;
+}

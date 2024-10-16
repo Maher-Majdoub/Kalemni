@@ -6,24 +6,29 @@ import logoTestImage from "../assets/logo_test_image.png";
 import useLogout from "../hooks/useLogout";
 import { useNavigate } from "react-router-dom";
 
-const SideBar = () => {
+interface Props {
+  onClose?(): void;
+}
+
+const SideBar = ({ onClose = () => {} }: Props) => {
   const { logout } = useLogout();
   const navigate = useNavigate();
   return (
-    <Box sx={{ padding: "15px 0" }}>
+    <Box height="100%" sx={{ padding: "15px 0" }}>
       <Stack
         spacing={2}
         height="100%"
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
         <img src={logoTestImage} width="70px" />
-        <NavBar />
+        <NavBar onChange={onClose} />
         <Stack spacing={1}>
-          <IconButton children={<TbAlertCircle />} />
+          <IconButton children={<TbAlertCircle />} onClick={onClose} />
           <IconButton
             children={<RxExit />}
             onClick={() => {
               logout();
+              onClose();
               navigate("/login");
             }}
           />

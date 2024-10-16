@@ -15,28 +15,49 @@ import {
   getConversationName,
 } from "../services/conversationServices";
 import { useNavigate } from "react-router-dom";
+import { PiDotsThreeCircleFill } from "react-icons/pi";
+import { useWindowTypeContext } from "../providers/WindowTypeProvider";
+import { FaArrowLeft } from "react-icons/fa";
 
 interface Props {
   conversation: IConversation;
+  showDetails: boolean;
+  onToggleShowDetails(): void;
 }
 
-const ConversationHeader = ({ conversation }: Props) => {
+const ConversationHeader = ({
+  conversation,
+  showDetails,
+  onToggleShowDetails,
+}: Props) => {
   const isConnected = true;
 
   const navigate = useNavigate();
+  const { isPhone } = useWindowTypeContext();
 
   const call = () => {
     navigate(`/call/${conversation._id}`);
   };
 
   return (
-    <>
+    <Box>
       <Box padding={2}>
         <Stack
           direction={"row"}
           sx={{ justifyContent: "space-between", alignItems: "center" }}
         >
-          <Stack direction={"row"} spacing={1}>
+          <Stack direction={"row"} spacing={1} alignItems="center">
+            {isPhone && (
+              <Box>
+                <IconButton
+                  onClick={() => navigate("/conversations")}
+                  color="primary"
+                  size="small"
+                >
+                  <FaArrowLeft />
+                </IconButton>
+              </Box>
+            )}
             <OnlineBadge isConnected={isConnected}>
               <Avatar src={getConversationPicture(conversation)} />
             </OnlineBadge>
@@ -56,12 +77,18 @@ const ConversationHeader = ({ conversation }: Props) => {
               color="primary"
               onClick={call}
             />
-            <IconButton children={<BsThreeDots />} color="primary" />
+            <IconButton
+              children={
+                showDetails ? <PiDotsThreeCircleFill /> : <BsThreeDots />
+              }
+              color="primary"
+              onClick={onToggleShowDetails}
+            />
           </Stack>
         </Stack>
       </Box>
       <Divider />
-    </>
+    </Box>
   );
 };
 

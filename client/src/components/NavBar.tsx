@@ -5,12 +5,12 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
 
 enum Navigations {
-  MESSAGES = "messages",
+  CONVERSATIONS = "conversations",
   FRIENDS = "friends",
   SETTINGS = "settings",
 }
 
-const NavBar = () => {
+const NavBar = ({ onChange = () => {} }: { onChange?(): void }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const currPage = pathname.split("/")[1];
@@ -21,7 +21,10 @@ const NavBar = () => {
         orientation="vertical"
         role="navigation"
         value={currPage}
-        onChange={(_, value) => navigate(`/${value}`)}
+        onChange={(_, value) => {
+          onChange();
+          navigate(`/${value}`);
+        }}
         TabIndicatorProps={{
           sx: { left: 0, borderRadius: "0 5px 5px 0", width: "4px" },
         }}
@@ -29,7 +32,7 @@ const NavBar = () => {
       >
         <Tab
           icon={<AiOutlineMessage size="20px" />}
-          value={Navigations.MESSAGES}
+          value={Navigations.CONVERSATIONS}
         />
         <Tab icon={<FiUsers size="20px" />} value={Navigations.FRIENDS} />
         <Tab

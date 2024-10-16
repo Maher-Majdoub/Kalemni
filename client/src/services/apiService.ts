@@ -5,7 +5,7 @@ class ApiService<TData, TInput = object> {
   private endpoint: string;
 
   constructor(endpoint: string) {
-    this.endpoint = endpoint;
+    this.endpoint = "/api" + endpoint;
   }
 
   get = () =>

@@ -6,17 +6,28 @@ import {
   getConversationPicture,
   getMessageSnapshot,
 } from "../services/conversationServices";
+import { useNavigate } from "react-router-dom";
+import { MdDone } from "react-icons/md";
 
-interface Props {
-  selectedConversationId: string | undefined;
-  onSelectConversation(conversationId: string): void;
-}
+const getTimeFromDate = (date: any) => {
+  const d = new Date(date);
+  let hours = d.getHours();
+  let minutes = d.getMinutes().toString();
+  let ampm = hours >= 12 ? "PM" : "AM";
 
-const ConversationsList = ({ onSelectConversation }: Props) => {
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  minutes = minutes.length < 2 ? "0" + minutes : minutes;
+
+  return hours + ":" + minutes + " " + ampm;
+};
+
+const ConversationsList = () => {
   const { conversations } = useConversations();
+  const navigate = useNavigate();
 
   return (
-    <Stack>
+    <Stack sx={{ overflowY: "auto" }}>
       {conversations &&
         conversations.map((conversation) => {
           return (
@@ -24,7 +35,7 @@ const ConversationsList = ({ onSelectConversation }: Props) => {
               sx={{ display: "block", textAlign: "left" }}
               key={conversation._id}
               onClick={() => {
-                onSelectConversation(conversation._id);
+                navigate(`/conversations/${conversation._id}`);
               }}
             >
               <Stack
@@ -59,22 +70,32 @@ const ConversationsList = ({ onSelectConversation }: Props) => {
                     </Typography>
                   </Stack>
                 </Stack>
-                {conversation.cntNewMessages > 0 && (
-                  <Avatar
-                    sx={{
-                      width: 20,
-                      height: 20,
-                      fontSize: 13,
-                      marginLeft: 2,
-                      backgroundColor: "blue",
-                    }}
-                  >
-                    <Typography variant="caption">
-                      {Math.min(conversation.cntNewMessages, 9).toString()}
-                      {conversation.cntNewMessages > 9 ? "+" : ""}
+                <Stack alignItems="flex-end">
+                  {conversation.lastMessage?.createdAt && (
+                    <Typography fontSize={13} fontWeight={600}>
+                      {getTimeFromDate(conversation.lastMessage.createdAt)}
                     </Typography>
-                  </Avatar>
-                )}
+                  )}
+                  {conversation.cntNewMessages > 0 && (
+                    <Avatar
+                      sx={{
+                        width: 20,
+                        height: 20,
+                        fontSize: 13,
+                        marginLeft: 2,
+                        backgroundColor: "blue",
+                      }}
+                    >
+                      <Typography variant="caption">
+                        {Math.min(conversation.cntNewMessages, 9).toString()}
+                        {conversation.cntNewMessages > 9 ? "+" : ""}
+                      </Typography>
+                    </Avatar>
+                  )}
+                  {conversation.isLastMessageSentByMe && (
+                    <MdDone color="primary" fontSize={18} />
+                  )}
+                </Stack>
               </Stack>
             </ButtonBase>
           );

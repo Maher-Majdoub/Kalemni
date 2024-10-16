@@ -6,6 +6,7 @@ import {
   createConversationGroup,
   sendMessage,
   getConversation,
+  getSharedMedia,
 } from "../controllers/conversations.controller";
 
 const router = express.Router();
@@ -13,6 +14,7 @@ const router = express.Router();
 router.get("/", authMiddleware, getConversations);
 router.post("/create", authMiddleware, createConversationGroup);
 router.get("/:conversationId", authMiddleware, getConversation);
+router.get("/:conversationId/shared-media", authMiddleware, getSharedMedia);
 router.post(
   "/:conversationId/messages/:messageType",
   authMiddleware,

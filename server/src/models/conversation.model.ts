@@ -10,6 +10,11 @@ interface IMessage {
   createdAt?: Date;
 }
 
+interface IMedia {
+  src: string;
+  type: "image" | "video";
+}
+
 interface IConversation {
   _id: Types.ObjectId;
   type: "p" | "g";
@@ -18,6 +23,7 @@ interface IConversation {
     lastSawMessageId?: Types.ObjectId;
   }[];
   messages: IMessage[];
+  sharedMedia: IMedia[];
   name?: string;
   picture?: string;
   createdAt?: Date;
@@ -56,6 +62,15 @@ const conversationSchema = new Schema<IConversation, ConversationModel>(
       { user: userSnapshotSchema, lastSawMessageId: { type: Types.ObjectId } },
     ],
     messages: [messageSchema],
+    sharedMedia: [
+      {
+        src: String,
+        type: {
+          type: String,
+          enum: ["video", "image"],
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

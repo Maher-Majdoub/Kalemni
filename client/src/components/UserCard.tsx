@@ -1,46 +1,30 @@
-import {
-  Button,
-  Card,
-  CircularProgress,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { ReactNode } from "react";
 import { IUserSnapshot } from "../hooks/useFriends";
-import useSendFriendRequest from "../hooks/useSendFriendRequest";
+import { Box, Card, Stack, Typography } from "@mui/material";
+import defaultProfilePicture from "../assets/default_profile_picture.jpg";
 
-const UserCard = ({ user }: { user: IUserSnapshot }) => {
-  const {
-    sendFriendRequest,
-    isSendFriendRequestSuccess,
-    isSendFriendRequestPending,
-  } = useSendFriendRequest(user._id);
+interface Props {
+  user: IUserSnapshot;
+  children?: ReactNode;
+}
 
-  if (isSendFriendRequestSuccess) console.log("done");
-
+const UserCard = ({ user, children }: Props) => {
   return (
-    <Card>
-      <Stack>
-        <img src={user.profilePicture} width={200} />
-        <Stack spacing={1} padding={2}>
-          <Typography variant="h6">
-            {user.firstName} {user.lastName}
-          </Typography>
-          {!isSendFriendRequestSuccess ? (
-            <Button variant="contained" onClick={() => sendFriendRequest({})}>
-              {isSendFriendRequestPending ? (
-                <CircularProgress color="inherit" size={24} />
-              ) : (
-                "Add Friend"
-              )}
-            </Button>
-          ) : (
-            <Button disabled variant="contained">
-              Request Sent
-            </Button>
-          )}
+    <Box>
+      <Card>
+        <Stack>
+          <Box textAlign="center">
+            <img src={user.profilePicture || defaultProfilePicture} />
+          </Box>
+          <Stack spacing={1} padding={2}>
+            <Typography variant="h6">
+              {user.firstName} {user.lastName}
+            </Typography>
+            {children}
+          </Stack>
         </Stack>
-      </Stack>
-    </Card>
+      </Card>
+    </Box>
   );
 };
 

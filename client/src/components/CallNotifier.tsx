@@ -22,11 +22,7 @@ const CallNotifier = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (socket) {
-      console.log("rak7na jawna");
-
-      socket.on("new-call", ({ conversation }) => setCall(conversation));
-    }
+    socket?.on("new-call", ({ conversation }) => setCall(conversation));
   }, [socket]);
 
   const acceptOffer = () => {

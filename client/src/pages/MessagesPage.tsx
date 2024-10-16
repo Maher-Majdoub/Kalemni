@@ -1,31 +1,38 @@
-import { useState } from "react";
-import { Box, Stack } from "@mui/material";
+import { useEffect } from "react";
+import { Stack } from "@mui/material";
 import MessagesSection from "../components/MessagesSection";
-import ChatBox from "../components/ChatBox";
 import ProfileSection from "../components/ProfileSection";
 import OnlineUsersSection from "../components/OnlineUsersSection";
+import Conversation from "../components/Conversation";
+import { useNavigate, useParams } from "react-router-dom";
+import { useWindowTypeContext } from "../providers/WindowTypeProvider";
+import NavBarContainer from "../components/NavBarContainer";
 
 const MessagesPage = () => {
-  const [selectedConversationId, setSelectedConversationId] = useState<
-    string | undefined
-  >(undefined);
+  const { conversationId } = useParams();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!conversationId) navigate("/conversations");
+  }, []);
+
+  const { isPhone } = useWindowTypeContext();
+
+  if (isPhone)
+    return <Conversation conversationId={conversationId as string} />;
 
   return (
-    <Stack direction="row" height="100%" width="100%">
-      <Box minWidth="300px" sx={{ backgroundColor: "#fafafe" }}>
-        <ProfileSection />
-        <Stack spacing={2} paddingTop={1} width="100%">
-          <OnlineUsersSection />
-          <MessagesSection
-            selectedConversationId={selectedConversationId}
-            onSelectConversation={setSelectedConversationId}
-          />
+    <NavBarContainer>
+      <Stack flex={1} direction="row">
+        <Stack sx={{ backgroundColor: "#fafafe" }}>
+          <ProfileSection />
+          <Stack flex={1} minHeight={0} spacing={2} paddingTop={1}>
+            <OnlineUsersSection />
+            <MessagesSection />
+          </Stack>
         </Stack>
-      </Box>
-      {selectedConversationId && (
-        <ChatBox conversationId={selectedConversationId} />
-      )}
-    </Stack>
+        <Conversation conversationId={conversationId as string} />
+      </Stack>
+    </NavBarContainer>
   );
 };
 

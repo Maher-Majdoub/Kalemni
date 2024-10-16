@@ -1,20 +1,24 @@
-import { Grid2 } from "@mui/material";
+import { Box } from "@mui/material";
 import useNewFriends from "../hooks/useNewFriends";
-import UserCard from "./UserCard";
+import NewFriendCard from "./NewFriendCard";
 
 const NewFriendsList = () => {
-  const { newFriends, isGetNewFriendsSuccess } = useNewFriends();
+  const { newFriends } = useNewFriends();
 
-  if (isGetNewFriendsSuccess) {
-  }
   return (
-    <Grid2 container spacing={2}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: 2,
+      }}
+      flex={1}
+      overflow="auto"
+    >
       {newFriends?.map((friend) => (
-        <Grid2 key={friend._id}>
-          <UserCard user={friend} />
-        </Grid2>
+        <NewFriendCard user={friend} key={friend._id} />
       ))}
-    </Grid2>
+    </Box>
   );
 };
 

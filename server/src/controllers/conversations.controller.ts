@@ -77,6 +77,19 @@ export const getConversation = async (req: Request, res: Response) => {
   return res.status(404).send({ message: "Conversation not found." });
 };
 
+export const getSharedMedia = async (req: Request, res: Response) => {
+  const conversationId = req.params["conversationId"];
+
+  const conversation = await Conversation.findById(conversationId).select(
+    "sharedMedia"
+  );
+
+  if (!conversation)
+    return res.status(404).send({ message: "Conversation not found" });
+
+  res.send(conversation.sharedMedia);
+};
+
 export const sendMessage = async (req: Request, res: Response) => {
   const conversationId = req.params["conversationId"];
 
@@ -94,31 +107,32 @@ export const sendMessage = async (req: Request, res: Response) => {
     content: req.body.message.content as string,
     createdAt: new Date(Date.now()),
   };
-  const conversation = await Conversation.findByIdAndUpdate(conversationId, {
+
+  const updateQuery = {
     $push: {
       messages: {
         $each: [message],
         $position: 0,
       },
+      sharedMedia: ["video", "image"].includes(message.type)
+        ? {
+            $each: [{ src: message.content, type: message.type }],
+            $position: 0,
+          }
+        : undefined,
     },
-  });
+  };
+
+  const conversation = await Conversation.findByIdAndUpdate(
+    conversationId,
+    updateQuery
+  );
 
   if (!conversation) {
     return res.status(404).send({ message: "Conversation not found." });
   }
 
-  // await Conversation.findByIdAndUpdate(conversation._id, conversation);
-
   res.status(201).send(message);
-
-  // for (const participant of conversation.participants) {
-  //   if (participant.user._id.equals(req.body.user._id)) {
-  //     conversation.messages.unshift(message);
-  //     res.status(201).send(message);
-  //     break;
-  //   }
-  // }
-
   for (const participant of conversation.participants) {
     const participantId = String(participant.user._id);
     if (me._id.equals(participantId)) continue;

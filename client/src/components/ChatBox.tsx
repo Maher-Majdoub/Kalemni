@@ -1,24 +1,26 @@
 import { Box, Stack } from "@mui/material";
 import MessageInputSection from "./MessageInputSection";
-import ConversationHeader from "./ConversationHeader";
 import useSendMessage, { IMessageInput } from "../hooks/useSendMessage";
 import MessagesList from "./MessagesList";
-import useConversation from "../hooks/useConversation";
+import { IConversation } from "../hooks/useConversation";
 import { IUserSnapshot } from "../hooks/useFriends";
 import { useEffect, useState } from "react";
 import { useSocketContext } from "../providers/SocketProvider";
 import useUserEnteredConversation from "../hooks/useUserEnteredConversation";
 import { useDropzone } from "react-dropzone";
-import DropArea from "./DropArea";
 import mime from "mime";
+import DropArea from "./DropArea";
 
-const ChatBox = ({ conversationId }: { conversationId: string }) => {
-  const { conversation } = useConversation(conversationId);
-  const { sendMessage } = useSendMessage(conversationId);
+interface Props {
+  conversation: IConversation;
+}
+
+const ChatBox = ({ conversation }: Props) => {
+  const { sendMessage } = useSendMessage(conversation._id);
   const socket = useSocketContext();
   const [showDropArea, setShowDropArea] = useState(false);
 
-  useUserEnteredConversation(conversationId);
+  useUserEnteredConversation(conversation._id);
 
   useEffect(() => {
     if (conversation && conversation.messages.length && socket)
@@ -75,24 +77,19 @@ const ChatBox = ({ conversationId }: { conversationId: string }) => {
   }
 
   return (
-    <Box width="100%" height="100%" {...getRootProps()}>
-      <Stack height="100%" sx={{ position: "relative" }}>
-        {showDropArea && <DropArea />}
-        <ConversationHeader conversation={conversation} />
-        <Box padding={2} sx={{ flex: 1, overflow: "auto" }}>
-          <MessagesList conversation={conversation} />
-        </Box>
-        {typingUsers.map((user) => (
-          <Box key={user._id}>{`${user.firstName} is typing...`}</Box>
-        ))}
-        <MessageInputSection
-          conversationId={conversation._id}
-          onOpenFileDialog={open}
-          onSendMessage={sendMessage}
-        />
-        <input {...getInputProps()} />
-      </Stack>
-    </Box>
+    <Stack padding={2} flex={1} {...getRootProps()} overflow="hidden">
+      {showDropArea && <DropArea />}
+      <MessagesList conversation={conversation} />
+      {typingUsers.map((user) => (
+        <Box key={user._id}>{`${user.firstName} is typing...`}</Box>
+      ))}
+      <MessageInputSection
+        conversationId={conversation._id}
+        onOpenFileDialog={open}
+        onSendMessage={sendMessage}
+      />
+      <input {...getInputProps()} />
+    </Stack>
   );
 };
 

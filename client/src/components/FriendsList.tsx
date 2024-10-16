@@ -1,30 +1,23 @@
-import { Card, Grid2, Stack, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import useFriends from "../hooks/useFriends";
+import UserCard from "./UserCard";
 
 const FriendsList = () => {
-  const { friends, isGetFriendsSuccess } = useFriends();
-
-  if (isGetFriendsSuccess) {
-  }
+  const { friends } = useFriends();
 
   return (
-    <Grid2 container spacing={2}>
+    <Box
+      sx={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: 2,
+      }}
+      padding={1}
+      overflow="auto"
+    >
       {friends &&
-        friends.map((friend) => (
-          <Grid2 key={friend._id}>
-            <Card>
-              <Stack>
-                <img src={friend.profilePicture} width={200} />
-                <Stack spacing={1} padding={2}>
-                  <Typography variant="h6">
-                    {friend.firstName} {friend.lastName}
-                  </Typography>
-                </Stack>
-              </Stack>
-            </Card>
-          </Grid2>
-        ))}
-    </Grid2>
+        friends.map((friend) => <UserCard key={friend._id} user={friend} />)}
+    </Box>
   );
 };
 

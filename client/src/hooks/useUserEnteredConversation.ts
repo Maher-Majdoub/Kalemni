@@ -7,7 +7,7 @@ const useUserEnteredConversation = (conversationId: string) => {
   queryClient.setQueryData(
     ["conversations"],
     (oldData: IConversationSnapshot[]) => {
-      return oldData.map((conversation) => {
+      return oldData?.map((conversation) => {
         if (conversation._id !== conversationId) return conversation;
         return {
           ...conversation,
