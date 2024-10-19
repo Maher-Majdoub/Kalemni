@@ -6,6 +6,8 @@ import AuthProvider from "./providers/AuthProvider";
 import SocketProvider from "./providers/SocketProvider";
 import OnlineUsersProvider from "./providers/OnlineFriendsProvider";
 import WindowTypeProvider from "./providers/WindowTypeProvider";
+import "react-toastify/dist/ReactToastify.css";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const queryClient = new QueryClient();
 const theme = createTheme({
@@ -23,7 +25,7 @@ function App() {
             <OnlineUsersProvider>
               <WindowTypeProvider>
                 <RouterProvider router={router} />
-                {/* <ReactQueryDevtools /> */}
+                <ReactQueryDevtools />
               </WindowTypeProvider>
             </OnlineUsersProvider>
           </ThemeProvider>

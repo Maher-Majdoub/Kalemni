@@ -1,13 +1,14 @@
 import { IConversation } from "../hooks/useConversation";
 import { IConversationSnapshot } from "../hooks/useConversations";
+import { BASE_URL } from "./apiClient";
 
 export const getConversationPicture = (
   conversation: IConversation | IConversationSnapshot
 ) => {
   if (conversation.type === "g") {
-    if (conversation.picture) return conversation.picture;
+    if (conversation.picture) return `${BASE_URL}${conversation.picture}`;
   }
-  return conversation.participants[0].user.profilePicture;
+  return `${BASE_URL}${conversation.participants[0].user.profilePicture}`;
 };
 export const getConversationName = (
   conversation: IConversation | IConversationSnapshot

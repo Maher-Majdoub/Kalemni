@@ -14,7 +14,11 @@ const MessageBox = ({ message, isNewMessagesGroup, isFirstMessage }: Props) => {
       <Stack spacing={1} direction="row">
         {!message.sentByMe && (
           <Avatar
-            src={message.sender.profilePicture}
+            src={
+              message.sender.profilePicture
+                ? `${BASE_URL}${message.sender.profilePicture}`
+                : undefined
+            }
             sx={{
               alignSelf: "flex-end",
               width: 30,

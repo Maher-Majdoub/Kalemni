@@ -94,3 +94,24 @@ export const validateCreateUser = (data: object) => {
 
   return extractJoiErrors(schema.validate(data, { abortEarly: false }).error);
 };
+
+export const validateUpdateProfileInfosData = (data: object) => {
+  const schema = Joi.object({
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    bio: Joi.string().allow(null, "").optional(),
+    birthDate: Joi.date().allow(null).optional(),
+    gender: Joi.string().allow(null).optional(),
+  });
+  return extractJoiErrors(schema.validate(data, { abortEarly: false }).error);
+};
+
+export const validateUpdateLoginInfosData = (data: object) => {
+  const schema = Joi.object({
+    newUsername: Joi.string().allow("", null).optional(),
+    newPassword: Joi.string().allow("", null).optional(),
+    oldPassword: Joi.string().required(),
+  });
+
+  return extractJoiErrors(schema.validate(data, { abortEarly: false }).error);
+};

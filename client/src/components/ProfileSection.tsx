@@ -1,5 +1,6 @@
 import { Box, Stack, Avatar, Typography, Divider } from "@mui/material";
 import useProfile from "../hooks/useProfile";
+import { BASE_URL } from "../services/apiClient";
 
 const ProfileSection = () => {
   const { profile } = useProfile();
@@ -10,7 +11,7 @@ const ProfileSection = () => {
     <>
       <Box padding={3}>
         <Stack direction="row" spacing={2} sx={{ alignItems: "center" }}>
-          <Avatar src={profile.profilePicture} />
+          <Avatar src={`${BASE_URL}${profile.profilePicture}`} />
           <Stack>
             <Typography variant="body1">
               {profile.firstName} {profile.lastName}

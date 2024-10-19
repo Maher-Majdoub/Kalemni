@@ -2,8 +2,12 @@ import { getSocketId, isConnected } from "../socket";
 import { Request, Response } from "express";
 import { Types } from "mongoose";
 import { io } from "../app";
-import User from "../models/user.model";
+import User, {
+  validateUpdateLoginInfosData,
+  validateUpdateProfileInfosData,
+} from "../models/user.model";
 import Conversation from "../models/conversation.model";
+import { hashPassword, validatePassword } from "../utils";
 
 export const getUser = async (userId: string, fields?: string[]) =>
   await User.findById(userId)
@@ -21,6 +25,63 @@ export const getMe = async (req: Request, fields?: string[]) => {
 
 export const getProfile = async (req: Request, res: Response) => {
   res.send(await getMe(req));
+};
+
+export const updateProfileInfos = async (req: Request, res: Response) => {
+  const errors = validateUpdateProfileInfosData(req.body.data);
+
+  if (errors.length) return res.status(400).send({ errors: errors });
+
+  const user = await User.findByIdAndUpdate(req.body.user._id, req.body.data);
+  if (!user) return res.status(404).send({ message: "User not found" });
+
+  res.status(201).send(req.body.data);
+};
+
+export const updateProfilePicture = async (req: Request, res: Response) => {
+  const filePath = `/uploads/profilePictures/${req.file?.filename}`;
+  await User.findByIdAndUpdate(req.body.user._id, {
+    profilePicture: filePath,
+  });
+
+  res.send({ picture: filePath });
+};
+
+export const deleteProfilePicture = async (req: Request, res: Response) => {
+  await User.findByIdAndUpdate(req.body.user._id, {
+    profilePicture: null,
+  });
+
+  res.status(204).send({});
+};
+
+export const updateLoginInfos = async (req: Request, res: Response) => {
+  const errors = validateUpdateLoginInfosData(req.body.data);
+
+  if (errors.length) return res.status(400).send({ errors: errors });
+
+  const newPassword = req.body.data.newPassword;
+  const newUsername = req.body.data.newUsername;
+  const oldPassword = req.body.data.oldPassword;
+
+  if (!newPassword && !newUsername) {
+    return res
+      .status(400)
+      .send({ message: "You should update at least one value" });
+  }
+
+  const user = await User.findById(req.body.user._id);
+
+  if (!user) return res.send();
+
+  if (!validatePassword(oldPassword, user.password))
+    return res.status(400).send({ message: "Old password is incorrect" });
+
+  if (newPassword) user.password = hashPassword(newPassword);
+  if (newUsername) user.username = newUsername;
+
+  await user.save();
+  res.status(201).send();
 };
 
 export const getFriends = async (req: Request, res: Response) => {

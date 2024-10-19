@@ -6,6 +6,9 @@ export interface IUserSnapshot {
   _id: string;
   firstName: string;
   lastName: string;
+  gender?: "m" | "f";
+  bio?: string;
+  birthDate?: Date;
   profilePicture?: string;
 }
 

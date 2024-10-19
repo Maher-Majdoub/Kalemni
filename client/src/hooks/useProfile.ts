@@ -3,24 +3,29 @@ import ApiService from "../services/apiService";
 import { IUserSnapshot } from "./useFriends";
 import { AxiosError } from "axios";
 
-interface ProfileData {
-  _id: string;
+export interface IProfileInfos {
   firstName: string;
   lastName: string;
+  bio?: string;
   gender?: "m" | "f";
-  birthDate: Date;
-  profilePicture: string;
+  birthDate?: Date;
+}
+
+export interface IProfileData extends IProfileInfos {
+  _id: string;
+  profilePicture?: string;
   friends: IUserSnapshot[];
 }
 
 const useProfile = () => {
-  const apiService = new ApiService<ProfileData>("/users/me");
+  const apiService = new ApiService<IProfileData>("/users/me");
   const authToken = localStorage.getItem("auth-token");
 
-  const getProfile = useQuery<ProfileData, AxiosError>({
+  const getProfile = useQuery<IProfileData, AxiosError>({
     queryFn: apiService.get,
     queryKey: ["me"],
     enabled: authToken !== null,
+    staleTime: Infinity,
   });
 
   return {
