@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSocketContext } from "../providers/SocketProvider";
-import { Box, Grid2, IconButton, Stack } from "@mui/material";
+import { Box, IconButton, Stack } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import Peer from "simple-peer";
 import { MdCallEnd } from "react-icons/md";
@@ -11,6 +11,7 @@ import {
   IoVideocam,
   IoVideocamOff,
 } from "react-icons/io5";
+import { useWindowTypeContext } from "../providers/WindowTypeProvider";
 
 interface IPeerRef {
   peerId: string;
@@ -19,23 +20,22 @@ interface IPeerRef {
 const Video = ({ peer, muted }: { peer: Peer.Instance; muted: boolean }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
   useEffect(() => {
     const handleStream = (stream: MediaStream) => {
       if (videoRef.current) videoRef.current.srcObject = stream;
       if (audioRef.current) audioRef.current.srcObject = stream;
     };
     peer.on("stream", handleStream);
+
+    return () => {
+      peer.off("stream", handleStream);
+    };
   }, [peer]);
 
   return (
     <>
-      <video
-        playsInline
-        autoPlay
-        ref={videoRef}
-        muted
-        style={{ width: "500px" }}
-      />
+      <video autoPlay ref={videoRef} muted />
       <audio autoPlay ref={audioRef} muted={muted} />
     </>
   );
@@ -54,6 +54,7 @@ const Call = () => {
   const [mute, setMute] = useState(false);
   const [enableAudio, setEnableAudio] = useState(true);
   const [enableVideo, setEnableVideo] = useState(true);
+  const [gridTemplate, setGridTemplate] = useState("");
 
   const createPeer = (userToSignal: string, stream: MediaStream) => {
     const peer = new Peer({
@@ -170,6 +171,7 @@ const Call = () => {
   }, []);
 
   useEffect(() => {
+    if (!socket) return;
     prepare();
   }, [socket]);
 
@@ -182,6 +184,18 @@ const Call = () => {
       ?.getVideoTracks()
       .forEach((track) => (track.enabled = enableVideo));
   }, [enableAudio, enableVideo]);
+
+  const { isLaptop } = useWindowTypeContext();
+
+  useEffect(() => {
+    if (peers.length === 1) setGridTemplate("100% / 100%");
+
+    if (peers.length === 2)
+      setGridTemplate(isLaptop ? "50% 50% / 100%" : "100% / 50% 50%");
+
+    if (peers.length === 3)
+      setGridTemplate(isLaptop ? "33% 33% 34% / 100%" : "100% / 33% 33% 34%");
+  }, [peers, isLaptop]);
 
   if (!socket) return <p>Famech Socket bro</p>;
 
@@ -198,18 +212,26 @@ const Call = () => {
       }}
     >
       <Box position="relative" width="100%" height="100%">
-        <Grid2 container width="100%" height="100%" spacing={2}>
+        <Box
+          height="100%"
+          width="100%"
+          sx={{
+            display: "grid",
+            gridTemplate: gridTemplate,
+          }}
+        >
           {peers.map((peer, index) => (
-            <Grid2 key={index}>
+            <Box key={index} textAlign="center">
               <Video peer={peer} muted={mute} />
-            </Grid2>
+            </Box>
           ))}
-        </Grid2>
+        </Box>
         <Box
           position="absolute"
-          bottom={30}
-          right={30}
-          width="250px"
+          top={10}
+          right={10}
+          width="100px"
+          height="180px"
           borderRadius={3}
           overflow="hidden"
         >

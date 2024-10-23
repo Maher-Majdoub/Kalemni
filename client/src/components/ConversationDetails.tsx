@@ -1,32 +1,34 @@
 import {
   Avatar,
   Box,
-  Button,
-  Divider,
   IconButton,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
-import { IConversation } from "../hooks/useConversation";
-import {
-  getConversationName,
-  getConversationPicture,
-} from "../services/conversationServices";
-import OnlineBadge from "./OnlineBadge";
-import useSharedMedia from "../hooks/useSharedMedia";
-import { FaArrowLeft } from "react-icons/fa6";
+import useConversation from "../hooks/useConversation";
 import { useWindowTypeContext } from "../providers/WindowTypeProvider";
-import { BASE_URL } from "../services/apiClient";
+import { IoMdAddCircleOutline } from "react-icons/io";
+import { IoEyeOutline } from "react-icons/io5";
+import { useState } from "react";
+import AddUsersToConversationDialog from "./AddUsersToConversationDialog";
+import AllConversationParticipantsDialog from "./AllConversationParticipantsDialog";
+import ConversationDetailsHeader from "./ConversationDetailsHeader";
+import ConversationSharedMediaList from "./ConversationSharedMediaList";
+import { useParams } from "react-router-dom";
 
 interface Props {
-  conversation: IConversation;
   onClose?(): void;
 }
 
-const ConversationDetails = ({ conversation, onClose = () => {} }: Props) => {
-  const { sharedMedia } = useSharedMedia(conversation._id);
-
+const ConversationDetails = ({ onClose = () => {} }: Props) => {
+  const { conversationId } = useParams();
+  const { conversation } = useConversation(conversationId as string);
   const { isLaptop } = useWindowTypeContext();
+  const [showAllPaticipants, setShowAllParticipants] = useState(false);
+  const [showAddFriends, setShowAddFriends] = useState(false);
+
+  if (!conversation) return <p>wait...</p>;
 
   return (
     <Box
@@ -36,35 +38,7 @@ const ConversationDetails = ({ conversation, onClose = () => {} }: Props) => {
       position="relative"
       minWidth="300px"
     >
-      {isLaptop && (
-        <Box position="absolute" top={15} left={15}>
-          <IconButton onClick={onClose} color="primary">
-            <FaArrowLeft />
-          </IconButton>
-        </Box>
-      )}
-      <Box>
-        <Stack
-          padding={7}
-          spacing={1}
-          alignItems="center"
-          justifyContent="center"
-        >
-          <OnlineBadge isConnected>
-            <Avatar
-              src={getConversationPicture(conversation)}
-              sx={{ width: 60, height: 60 }}
-            />
-          </OnlineBadge>
-          <Box textAlign="center">
-            <Typography>{getConversationName(conversation)}</Typography>
-            <Typography variant="caption" color="gray">
-              {conversation.type === "p" ? "private" : "group"} chat
-            </Typography>
-          </Box>
-        </Stack>
-        <Divider />
-      </Box>
+      <ConversationDetailsHeader onClose={onClose} />
       <Stack padding={1.5} spacing={2}>
         {conversation.type === "g" && (
           <Stack spacing={1}>
@@ -76,7 +50,26 @@ const ConversationDetails = ({ conversation, onClose = () => {} }: Props) => {
               <Typography fontWeight="600" fontSize={17}>
                 {conversation.participants.length} Particpants
               </Typography>
-              <Button>See all</Button>
+              <Stack direction="row">
+                <Tooltip title="See All">
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setShowAllParticipants(true);
+                    }}
+                  >
+                    <IoEyeOutline />
+                  </IconButton>
+                </Tooltip>
+                <Tooltip title="Add Friend">
+                  <IconButton
+                    size="small"
+                    onClick={() => setShowAddFriends(true)}
+                  >
+                    <IoMdAddCircleOutline />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
             </Stack>
             <Stack spacing={1.5}>
               {conversation.participants.slice(0, 3).map((participant) => (
@@ -99,34 +92,16 @@ const ConversationDetails = ({ conversation, onClose = () => {} }: Props) => {
             </Stack>
           </Stack>
         )}
-        <Stack spacing={1}>
-          <Typography fontWeight="600" fontSize={17}>
-            Shared Media
-          </Typography>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",
-              gap: 0.5,
-            }}
-          >
-            {sharedMedia?.map((media) => (
-              <Box key={media._id} width="100%">
-                {media.type === "image" && (
-                  <img width="100%" src={`${BASE_URL}${media.src}`} />
-                )}
-                {media.type === "video" && (
-                  <video
-                    width="100%"
-                    src={`${BASE_URL}${media.src}`}
-                    controls
-                  />
-                )}
-              </Box>
-            ))}
-          </Box>
-        </Stack>
+        <ConversationSharedMediaList />
       </Stack>
+      <AllConversationParticipantsDialog
+        showDialog={showAllPaticipants}
+        onClose={() => setShowAllParticipants(false)}
+      />
+      <AddUsersToConversationDialog
+        showDialog={showAddFriends}
+        onClose={() => setShowAddFriends(false)}
+      />
     </Box>
   );
 };

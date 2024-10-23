@@ -3,16 +3,17 @@ import authMiddleware from "../middlewares/auth.middleware";
 import messageMiddleware from "../middlewares/message.milddleware";
 import {
   getConversations,
-  createConversationGroup,
+  createGroupConversation,
   sendMessage,
   getConversation,
   getSharedMedia,
+  addUsersToGroupConversation,
 } from "../controllers/conversations.controller";
 
 const router = express.Router();
 
 router.get("/", authMiddleware, getConversations);
-router.post("/create", authMiddleware, createConversationGroup);
+router.post("/create", authMiddleware, createGroupConversation);
 router.get("/:conversationId", authMiddleware, getConversation);
 router.get("/:conversationId/shared-media", authMiddleware, getSharedMedia);
 router.post(
@@ -20,6 +21,11 @@ router.post(
   authMiddleware,
   messageMiddleware,
   sendMessage
+);
+router.post(
+  "/:conversationId/users/add",
+  authMiddleware,
+  addUsersToGroupConversation
 );
 
 export default router;

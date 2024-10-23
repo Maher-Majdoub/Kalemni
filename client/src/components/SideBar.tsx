@@ -20,7 +20,7 @@ const SideBar = ({ onClose = () => {} }: Props) => {
         height="100%"
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
-        <img src={logoTestImage} width="70px" />
+        <img src={logoTestImage} className="logo" />
         <NavBar onChange={onClose} />
         <Stack spacing={1}>
           <IconButton children={<TbAlertCircle />} onClick={onClose} />

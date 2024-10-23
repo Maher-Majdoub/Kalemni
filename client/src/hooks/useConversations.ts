@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import ApiService from "../services/apiService";
 import { AxiosError } from "axios";
 import { IUserSnapshot } from "./useFriends";
-import { IMessage } from "./useConversation";
+import { MessageType } from "./useConversation";
 
 export interface IConversationSnapshot {
   _id: string;
@@ -13,7 +13,13 @@ export interface IConversationSnapshot {
     isTyping?: boolean;
   }[];
   cntNewMessages: number;
-  lastMessage: IMessage;
+  lastMessage: {
+    _id: string;
+    sender: IUserSnapshot | string;
+    type: MessageType;
+    content: string;
+    createdAt?: Date;
+  };
   isLastMessageSentByMe: boolean;
   name?: string;
   picture?: string;
@@ -29,7 +35,6 @@ const useConversations = () => {
     queryFn: apiService.get,
     queryKey: ["conversations"],
     enabled: authToken !== null,
-    staleTime: Infinity,
   });
 
   return {

@@ -1,20 +1,12 @@
-import { Box } from "@mui/material";
 import useFriendRequests from "../hooks/useFriendRequests";
 import FriendRequestCard from "./FriendRequestCard";
+import GridDisplayer from "./GridDisplayer";
 
 const FriendRequestsList = () => {
   const { friendRequests } = useFriendRequests();
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-        gap: 2,
-      }}
-      flex={1}
-      overflow="auto"
-    >
+    <GridDisplayer>
       {friendRequests?.map((friendRequest) => (
         <FriendRequestCard
           key={friendRequest._id}
@@ -22,7 +14,7 @@ const FriendRequestsList = () => {
           requestId={friendRequest._id}
         />
       ))}
-    </Box>
+    </GridDisplayer>
   );
 };
 

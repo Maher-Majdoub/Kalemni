@@ -1,18 +1,23 @@
 import { Request, Response } from "express";
-import { Types } from "mongoose";
-import { io } from "../app";
 import { getSocketId } from "../socket";
+import { Types } from "mongoose";
+import { getMe } from "./utils";
+import { io } from "../app";
+import User, { userSnapshotFields } from "../models/user.model";
 import Conversation from "../models/conversation.model";
-import User from "../models/user.model";
 
 export const getConversations = async (req: Request, res: Response) => {
   const userId = req.body.user._id;
 
   const conversations = await Conversation.find({
     participants: {
-      $elemMatch: { "user._id": userId },
+      $elemMatch: { user: userId },
     },
   })
+    .populate({
+      path: "participants.user",
+      select: userSnapshotFields,
+    })
     .sort("-updatedAt")
     .lean();
 
@@ -20,6 +25,7 @@ export const getConversations = async (req: Request, res: Response) => {
     const lastMessage = conversation.messages.length
       ? conversation.messages[0]
       : undefined;
+
     const me = conversation.participants.find((participant) =>
       participant.user._id.equals(userId)
     );
@@ -37,13 +43,14 @@ export const getConversations = async (req: Request, res: Response) => {
       ...conversation,
       lastMessage: lastMessage,
       isLastMessageSentByMe:
-        lastMessage && lastMessage.sender._id.equals(me.user._id),
+        lastMessage && lastMessage.sender.equals(me.user._id),
       participants: conversation.participants.filter(
         (participant) => !participant.user._id.equals(me.user._id)
       ),
       cntNewMessages: cntNewMessages,
     };
   });
+
   res.send(filteredConversations);
 };
 
@@ -53,7 +60,16 @@ export const getConversation = async (req: Request, res: Response) => {
   if (!Types.ObjectId.isValid(conversationId))
     return res.status(400).send({ message: "Invalid Conversation ID" });
 
-  const conversation = await Conversation.findById(conversationId).lean();
+  const conversation = await Conversation.findById(conversationId)
+    .populate({
+      path: "participants.user",
+      select: userSnapshotFields,
+    })
+    .populate({
+      path: "messages.sender",
+      select: userSnapshotFields,
+    })
+    .lean();
 
   if (conversation)
     for (const participant of conversation.participants) {
@@ -96,9 +112,7 @@ export const sendMessage = async (req: Request, res: Response) => {
   if (!Types.ObjectId.isValid(conversationId))
     return res.status(400).send({ message: "Invalid Conversation ID" });
 
-  const me = await User.findById(req.body.user._id);
-  // TODO: implement this
-  if (!me) return res.status(500).send({});
+  const me = await getMe(req);
 
   const message = {
     _id: new Types.ObjectId(),
@@ -147,7 +161,7 @@ export const sendMessage = async (req: Request, res: Response) => {
   }
 };
 
-export const createConversationGroup = async (req: Request, res: Response) => {
+export const createGroupConversation = async (req: Request, res: Response) => {
   const userId = req.body.user._id;
 
   const me = await User.findById(userId);
@@ -156,19 +170,35 @@ export const createConversationGroup = async (req: Request, res: Response) => {
   const conversation = new Conversation({
     type: "g",
     name: req.body.conversationName,
-    participants: [{ _id: new Types.ObjectId(), user: me.getSnapshot() }],
+    participants: [
+      { user: me._id },
+      ...req.body.participants.map((participant: string) => {
+        return { user: participant };
+      }),
+    ],
   });
-
-  for (const friendId of req.body.participants) {
-    const friend = await User.findById(friendId);
-    if (!friend)
-      return res.status(400).send({ message: "friend do not exist" });
-
-    conversation.participants.push({
-      user: friend.getSnapshot(),
-    });
-  }
 
   await conversation.save();
   res.status(201).send(conversation);
+};
+
+export const addUsersToGroupConversation = async (
+  req: Request,
+  res: Response
+) => {
+  const users = req.body.users as string[];
+  const conversationId = req.params["conversationId"];
+
+  const toAdd = users.map((user) => {
+    return { user: user };
+  });
+
+  const conversation = await Conversation.findByIdAndUpdate(conversationId, {
+    $push: { participants: { $each: toAdd } },
+  }).select("_id");
+
+  if (!conversation)
+    return res.status(404).send({ message: "Conversation not found" });
+
+  res.status(201).send();
 };

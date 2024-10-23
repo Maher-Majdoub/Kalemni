@@ -4,17 +4,20 @@ import {
   getProfile,
   updateProfileInfos,
   updateProfilePicture,
-  updateLoginInfos,
-  getFriends,
-  getOnlineFriends,
-  getNewFriends,
-  getFriendRequests,
-  acceptFriendRequest,
-  refuseFriendRequest,
-  sendFriendRequest,
   deleteProfilePicture,
 } from "../controllers/user.controller";
+import {
+  acceptFriendRequest,
+  deleteFriend,
+  getFriendRequests,
+  getFriends,
+  getNewFriends,
+  getOnlineFriends,
+  refuseFriendRequest,
+  sendFriendRequest,
+} from "../controllers/friends.controller";
 import { uploadProfilePictureMiddleware } from "../middlewares/upload_profile_picture.middleware";
+import { updateLoginInfos } from "../controllers/auth.controller";
 
 const router = express.Router();
 
@@ -32,6 +35,7 @@ router.get("/me/friends", authMiddleware, getFriends);
 router.get("/me/friends/online", authMiddleware, getOnlineFriends);
 router.get("/find", authMiddleware, getNewFriends);
 router.get("/me/friends/requests", authMiddleware, getFriendRequests);
+router.delete("/me/friends/:userId", authMiddleware, deleteFriend);
 
 router.post(
   "/me/friends/requests/:requestId/accept",

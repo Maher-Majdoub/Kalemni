@@ -1,11 +1,10 @@
 import express from "express";
 import cors from "cors";
+import path from "path";
 import api from "./routes/api.routes";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { handleIoConnection } from "./socket";
-import path from "path";
-import bodyParser from "body-parser";
 
 const app = express();
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

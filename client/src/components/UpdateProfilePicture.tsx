@@ -3,7 +3,6 @@ import { useDropzone } from "react-dropzone";
 import useProfile from "../hooks/useProfile";
 import { useEffect, useState } from "react";
 import useUpdateProfilePicture from "../hooks/useUpdateProfilePicture";
-import { BASE_URL } from "../services/apiClient";
 import useDeleteProfilePicture from "../hooks/useDeleteProfilePicture";
 import { useQueryClient } from "@tanstack/react-query";
 import { MdDeleteOutline, MdDone } from "react-icons/md";
@@ -57,9 +56,7 @@ const UpdateProfilePicture = () => {
     <Stack alignItems="center">
       <Avatar
         src={
-          selectedPicture.url
-            ? selectedPicture.url
-            : `${BASE_URL}${profile?.profilePicture}`
+          selectedPicture.url ? selectedPicture.url : profile?.profilePicture
         }
         sx={{ width: 140, height: 140 }}
       />

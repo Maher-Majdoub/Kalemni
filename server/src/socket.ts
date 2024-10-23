@@ -2,7 +2,7 @@ import { io } from "./app";
 import { Socket } from "socket.io";
 import { verifyToken } from "./utils";
 import Conversation from "./models/conversation.model";
-import User from "./models/user.model";
+import User, { userSnapshotFields } from "./models/user.model";
 
 const userSocketMap = new Map<
   string,
@@ -26,18 +26,12 @@ const handleIoConnection = async (socket: Socket) => {
   userSocketMap.set(userId, { socketId: socket.id, isConnected: true });
 
   const user = await User.findById(userId);
+
   if (!user) throw new Error("this should not be happened");
 
   for (const friend of user.friends) {
-    const socketId = userSocketMap.get(String(friend._id))?.socketId;
-
-    if (socketId)
-      io.to(socketId).emit("userConnected", {
-        _id: userId,
-        firstName: user.firstName,
-        lastName: user.firstName,
-        profilePicture: user.profilePicture,
-      });
+    const socketId = userSocketMap.get(friend.toString())?.socketId;
+    if (socketId) io.to(socketId).emit("userConnected", user.getSnapshot());
   }
 
   socket.on("disconnect", () => {
@@ -166,7 +160,10 @@ const handleIoConnection = async (socket: Socket) => {
   });
 
   socket.on("start-call", async ({ conversationId }) => {
-    const conversation = await Conversation.findById(conversationId);
+    const conversation = await Conversation.findById(conversationId).populate({
+      path: "participants.user",
+      select: userSnapshotFields,
+    });
 
     conversation?.participants.forEach((participant) => {
       if (!participant.user._id.equals(userId)) {

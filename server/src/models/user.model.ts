@@ -10,15 +10,23 @@ export interface IUserSnapshot {
   profilePicture?: string;
 }
 
+export const userSnapshotFields = [
+  "_id",
+  "firstName",
+  "lastName",
+  "bio",
+  "profilePicture",
+];
+
 export interface IUser extends IUserSnapshot {
   username: string;
   password: string;
   birthDate?: Date;
   gender: "m" | "f";
-  friends: IUserSnapshot[];
+  friends: any;
   friendRequests: {
     _id: Types.ObjectId;
-    user: IUserSnapshot;
+    user: any;
   }[];
 }
 
@@ -45,14 +53,13 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
     lastName: { type: String, required: true },
     bio: { type: String },
     profilePicture: { type: String },
-
     birthDate: { type: Date },
     gender: { type: String, enum: ["m", "f"] },
-    friends: { type: [userSnapshotSchema] },
+    friends: [{ type: Types.ObjectId, ref: "User" }],
     friendRequests: [
       {
         _id: { type: Types.ObjectId, default: new Types.ObjectId() },
-        user: userSnapshotSchema,
+        user: { type: Types.ObjectId, ref: "User" },
       },
     ],
   },

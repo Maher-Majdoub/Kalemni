@@ -3,7 +3,7 @@ import { IUserSnapshot, userSnapshotSchema } from "./user.model";
 
 interface IMessage {
   _id: Types.ObjectId;
-  sender: IUserSnapshot;
+  sender: any;
   type: string;
   content: string;
   updatedAt?: Date;
@@ -19,7 +19,7 @@ interface IConversation {
   _id: Types.ObjectId;
   type: "p" | "g";
   participants: {
-    user: IUserSnapshot;
+    user: any;
     lastSawMessageId?: Types.ObjectId;
   }[];
   messages: IMessage[];
@@ -34,7 +34,10 @@ type ConversationModel = Model<IConversation, {}>;
 
 const messageSchema = new Schema(
   {
-    sender: userSnapshotSchema,
+    sender: {
+      type: Types.ObjectId,
+      ref: "User",
+    },
     type: {
       type: String,
       required: true,
@@ -59,7 +62,10 @@ const conversationSchema = new Schema<IConversation, ConversationModel>(
     name: String,
     picture: String,
     participants: [
-      { user: userSnapshotSchema, lastSawMessageId: { type: Types.ObjectId } },
+      {
+        user: { type: Types.ObjectId, ref: "User" },
+        lastSawMessageId: { type: Types.ObjectId },
+      },
     ],
     messages: [messageSchema],
     sharedMedia: [

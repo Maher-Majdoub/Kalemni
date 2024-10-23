@@ -71,78 +71,86 @@ const AddConversationDialog = ({ open, onClose }: Props) => {
           flex={1}
           minHeight={0}
         >
-          <Typography variant="h6">Create New Group Chat</Typography>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Typography>Selected : </Typography>
-            <Stack
-              direction="row"
-              spacing={2}
-              padding={"10px 0 0"}
-              flex={1}
-              minWidth={0}
-              overflow="auto"
-            >
-              {selectedFriends.map((friend) => (
-                <RemoveBadge
-                  key={friend._id}
-                  onRemove={() => {
-                    removeSelectedFriend(friend._id);
-                  }}
-                >
-                  <Avatar src={friend.profilePicture} />
-                </RemoveBadge>
-              ))}
-            </Stack>
-          </Stack>
-          <Stack overflow="auto">
-            {restFriends.map((friend) => (
-              <ButtonBase
-                key={friend._id}
-                onClick={() => {
-                  setSelectedFriends([...selectedFriends, friend]);
-                }}
-              >
+          {friends.length === 0 ? (
+            <Typography>You have no friends yet</Typography>
+          ) : (
+            <>
+              <Typography variant="h6">Create New Group Chat</Typography>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Typography>Selected : </Typography>
                 <Stack
                   direction="row"
-                  width="100%"
                   spacing={2}
-                  padding={1}
-                  alignItems="center"
+                  padding={"10px 0 0"}
+                  flex={1}
+                  minWidth={0}
+                  overflow="auto"
                 >
-                  <Avatar src={friend.profilePicture} />
-                  <Typography>
-                    {friend.firstName} {friend.lastName}
-                  </Typography>
+                  {selectedFriends.map((friend) => (
+                    <RemoveBadge
+                      key={friend._id}
+                      onRemove={() => {
+                        removeSelectedFriend(friend._id);
+                      }}
+                    >
+                      <Avatar src={friend.profilePicture} />
+                    </RemoveBadge>
+                  ))}
                 </Stack>
-              </ButtonBase>
-            ))}
-          </Stack>
-          <TextField
-            {...register("conversationName", {
-              required: { value: true, message: "Please enter group name" },
-            })}
-            error={!!errors.conversationName}
-            helperText={errors.conversationName?.message?.toString()}
-            label="Group Name"
-            fullWidth
-            size="small"
-          />
-          <Button
-            variant="contained"
-            disabled={isCreateConversationPending}
-            onClick={handleSubmit((data) => {
-              createConversation({
-                conversationName: data.conversationName,
-                participants: selectedFriends.map((friend) => friend._id),
-              });
-            })}
-          >
-            {isCreateConversationPending ? (
-              <CircularProgress />
-            ) : (
-              "Create Group"
-            )}
-          </Button>
+              </Stack>
+              <Stack overflow="auto">
+                {restFriends.map((friend) => (
+                  <ButtonBase
+                    key={friend._id}
+                    onClick={() => {
+                      setSelectedFriends([...selectedFriends, friend]);
+                    }}
+                  >
+                    <Stack
+                      direction="row"
+                      width="100%"
+                      spacing={2}
+                      padding={1}
+                      alignItems="center"
+                    >
+                      <Avatar src={friend.profilePicture} />
+                      <Typography>
+                        {friend.firstName} {friend.lastName}
+                      </Typography>
+                    </Stack>
+                  </ButtonBase>
+                ))}
+              </Stack>
+              <TextField
+                {...register("conversationName", {
+                  required: { value: true, message: "Please enter group name" },
+                })}
+                error={!!errors.conversationName}
+                helperText={errors.conversationName?.message?.toString()}
+                label="Group Name"
+                fullWidth
+                size="small"
+              />
+              <Button
+                variant="contained"
+                disabled={
+                  isCreateConversationPending || selectedFriends.length === 0
+                }
+                onClick={handleSubmit((data) => {
+                  createConversation({
+                    conversationName: data.conversationName,
+                    participants: selectedFriends.map((friend) => friend._id),
+                  });
+                })}
+              >
+                {isCreateConversationPending ? (
+                  <CircularProgress />
+                ) : (
+                  "Create Group"
+                )}
+              </Button>
+            </>
+          )}
         </Stack>
       </Stack>
     </Dialog>

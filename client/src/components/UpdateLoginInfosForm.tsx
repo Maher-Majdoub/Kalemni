@@ -1,4 +1,10 @@
-import { Stack, Typography, TextField, Button } from "@mui/material";
+import {
+  Stack,
+  Typography,
+  TextField,
+  Button,
+  CircularProgress,
+} from "@mui/material";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import useUpdateLoginInfos, {
@@ -13,7 +19,11 @@ const UpdateLoginInfosForm = () => {
     reset,
     formState: { errors },
   } = useForm();
-  const { updateLoginInfos, isUpdateLoginInfosSuccess } = useUpdateLoginInfos();
+  const {
+    updateLoginInfos,
+    isUpdateLoginInfosSuccess,
+    isUpdateLoginInfosPending,
+  } = useUpdateLoginInfos();
 
   const onSubmit = handleSubmit((data) => {
     if (!data.newPassword && !data.newUsername)
@@ -49,8 +59,16 @@ const UpdateLoginInfosForm = () => {
           error={!!errors.oldPassword}
           helperText={errors.oldPassword?.message?.toString()}
         />
-        <Button variant="contained" type="submit">
-          Update Login Infos
+        <Button
+          variant="contained"
+          type="submit"
+          disabled={isUpdateLoginInfosPending}
+        >
+          {isUpdateLoginInfosPending ? (
+            <CircularProgress size={25} />
+          ) : (
+            "Update Login Infos"
+          )}
         </Button>
       </Stack>
     </form>

@@ -1,23 +1,17 @@
-import { Box } from "@mui/material";
 import useFriends from "../hooks/useFriends";
-import UserCard from "./UserCard";
+import GridDisplayer from "./GridDisplayer";
+import FriendCard from "./FriendCard";
 
 const FriendsList = () => {
   const { friends } = useFriends();
 
   return (
-    <Box
-      sx={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-        gap: 2,
-      }}
-      padding={1}
-      overflow="auto"
-    >
+    <GridDisplayer>
       {friends &&
-        friends.map((friend) => <UserCard key={friend._id} user={friend} />)}
-    </Box>
+        friends.map((friend) => (
+          <FriendCard friend={friend} key={friend._id} />
+        ))}
+    </GridDisplayer>
   );
 };
 

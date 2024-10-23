@@ -33,11 +33,10 @@ const useConversation = (conversationId: string) => {
   );
   const authToken = localStorage.getItem("auth-token");
 
-  const query = useQuery<IConversation, AxiosError>({
+  const query = useQuery<IConversation, AxiosError<{ message: string }>>({
     queryFn: apiService.get,
     queryKey: ["conversation", conversationId],
     enabled: authToken !== null,
-    staleTime: Infinity,
   });
 
   return {

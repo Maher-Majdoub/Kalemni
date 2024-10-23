@@ -45,7 +45,9 @@ const messageMiddleware = (req: Request, res: Response, next: NextFunction) => {
 
   upload.single(messageType)(req, res, (err) => {
     parseRequestBody(req);
-    req.body.message.content = `/uploads/conversations/${conversationId}/${messageType}/${
+    req.body.message.content = `${req.protocol}://${req.get(
+      "host"
+    )}/uploads/conversations/${conversationId}/${messageType}/${
       req.file?.filename as string
     }`;
     next();
