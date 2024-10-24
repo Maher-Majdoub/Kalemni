@@ -8,7 +8,6 @@ import {
 } from "@mui/material";
 import { ReactNode, useState } from "react";
 import { useWindowTypeContext } from "../providers/WindowTypeProvider";
-import CallNotifier from "./CallNotifier";
 import SideBar from "./SideBar";
 import { HiMiniBars3 } from "react-icons/hi2";
 import { useLocation } from "react-router-dom";
@@ -22,7 +21,6 @@ const NavBarContainer = ({ children }: { children: ReactNode }) => {
   if (isPhone) {
     return (
       <Stack height="100vh" overflow="hidden">
-        <CallNotifier />
         <AppBar position="static">
           <Stack color="white" direction="row" alignItems="center" spacing={1}>
             <IconButton
@@ -50,7 +48,6 @@ const NavBarContainer = ({ children }: { children: ReactNode }) => {
 
   return (
     <Box height="100vh">
-      <CallNotifier />
       <Stack direction="row" height="100%">
         <SideBar />
         {children}

@@ -9,8 +9,6 @@ const userSocketMap = new Map<
   { socketId: string; isConnected: boolean }
 >();
 
-const roomUsersMap = new Map<string, string[]>();
-
 const getSocketId = (userId: string) => userSocketMap.get(userId)?.socketId;
 
 const isConnected = (userId: string) =>
@@ -145,67 +143,61 @@ const handleIoConnection = async (socket: Socket) => {
     }
   );
 
-  socket.on("join-room", ({ conversationId }) => {
-    if (!roomUsersMap.get(conversationId)) {
-      roomUsersMap.set(conversationId, []);
-    }
-
-    const usersInRoom = (roomUsersMap.get(conversationId) as string[]).filter(
-      (id) => id !== userId
-    );
-
-    roomUsersMap.set(conversationId, [...usersInRoom, userId]);
-
-    socket.emit("all-users", usersInRoom);
-  });
-
-  socket.on("start-call", async ({ conversationId }) => {
-    const conversation = await Conversation.findById(conversationId).populate({
-      path: "participants.user",
-      select: userSnapshotFields,
-    });
-
-    conversation?.participants.forEach((participant) => {
-      if (!participant.user._id.equals(userId)) {
+  socket.on("join", async (room, type) => {
+    if (!io.sockets.adapter.rooms.get(room)?.size) {
+      // new call
+      const conversation = await Conversation.findById(room).populate({
+        path: "participants.user",
+        select: userSnapshotFields,
+      });
+      conversation?.participants.forEach((participant) => {
         const socketId = getSocketId(participant.user._id.toString());
-        if (socketId) io.to(socketId).emit("new-call", { conversation });
-      }
-    });
-  });
+        if (socketId === socket.id) return;
 
-  socket.on("sending-signal", (payload) => {
-    const socketId = getSocketId(payload.userToSignal);
-    if (socketId) {
-      io.to(socketId).emit("user-joined", {
-        signal: payload.signal,
-        callerID: userId,
+        if (socketId) io.to(socketId).emit("newCall", conversation, type);
       });
     }
+
+    socket.join(room);
+    socket.to(room).emit("newParticipant", userId);
   });
 
-  socket.on("returning-signal", (payload) => {
-    const socketId = getSocketId(payload.callerID);
-
-    if (socketId)
-      io.to(socketId).emit("receiving-returned-signal", {
-        signal: payload.signal,
-        id: userId,
-      });
+  socket.on("offer", (id, offer) => {
+    const socketId = getSocketId(id);
+    if (socketId) socket.to(socketId).emit("offer", userId, offer);
   });
 
-  socket.on("leave", ({ conversationId }) => {
-    const users = roomUsersMap.get(conversationId);
-    if (!users) return;
+  socket.on("answer", (id, answer) => {
+    const socketId = getSocketId(id);
+    if (socketId) socket.to(socketId).emit("answer", userId, answer);
+  });
 
-    roomUsersMap.set(
-      conversationId,
-      users.filter((id) => id !== userId)
-    );
+  socket.on("iceCandidate", (room, id, candidate) => {
+    const socketId = getSocketId(id);
+    if (socketId) socket.to(room).emit("iceCandidate", userId, candidate);
+  });
 
-    roomUsersMap.get(conversationId)?.forEach((id) => {
-      const socketId = getSocketId(id);
-      if (socketId) io.to(socketId).emit("user-leaved", { userId });
-    });
+  socket.on("videoOffer", (id, offer) => {
+    const socketId = getSocketId(id);
+    if (socketId) io.to(socketId).emit("videoOffer", userId, offer);
+  });
+
+  socket.on("videoAnswer", (id, answer) => {
+    const socketId = getSocketId(id);
+    if (socketId) io.to(socketId).emit("videoAnswer", userId, answer);
+  });
+
+  socket.on("toggleEnableAudio", (room, isAudioEnabled) => {
+    socket.to(room).emit("toggleEnableAudio", userId, isAudioEnabled);
+  });
+
+  socket.on("toggleEnableVideo", (room, isVideoEnabled) => {
+    socket.to(room).emit("toggleEnableVideo", userId, isVideoEnabled);
+  });
+
+  socket.on("leaveCall", (room) => {
+    socket.leave(room);
+    socket.to(room).emit("participantLeft", userId);
   });
 };
 

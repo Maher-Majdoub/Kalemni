@@ -25,7 +25,6 @@
     "react-icons": "^5.3.0",
     "react-router-dom": "^6.26.2",
     "react-toastify": "^10.0.6",
-    "simple-peer": "^9.11.1",
     "socket.io-client": "^4.8.0"
   },
   "devDependencies": {
@@ -33,7 +32,6 @@
     "@tanstack/eslint-plugin-query": "^5.57.1",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
-    "@types/simple-peer": "^9.11.8",
     "@vitejs/plugin-react": "^4.3.1",
     "eslint": "^9.9.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",

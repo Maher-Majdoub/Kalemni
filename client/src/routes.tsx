@@ -1,12 +1,12 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
-import Call from "./components/Call";
 import Layout from "./components/Layout";
 import MessagesPage from "./pages/MessagesPage";
 import ConversationsPage from "./pages/ConversationsPage";
 import FriendsPage from "./pages/FriendsPage";
 import SettingsPage from "./pages/SettingsPage";
+import Call from "./components/Call";
 
 const router = createBrowserRouter([
   {

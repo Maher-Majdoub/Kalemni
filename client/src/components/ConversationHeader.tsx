@@ -35,8 +35,8 @@ const ConversationHeader = ({
   const navigate = useNavigate();
   const { isPhone } = useWindowTypeContext();
 
-  const call = () => {
-    navigate(`/call/${conversation._id}`);
+  const call = (type: string) => {
+    navigate(`/call/${conversation._id}?callType=${type}`);
   };
 
   return (
@@ -71,11 +71,15 @@ const ConversationHeader = ({
             </Stack>
           </Stack>
           <Stack direction={"row"} spacing={1}>
-            <IconButton children={<IoCall />} color="primary" />
+            <IconButton
+              children={<IoCall />}
+              color="primary"
+              onClick={() => call("audio")}
+            />
             <IconButton
               children={<IoVideocam />}
               color="primary"
-              onClick={call}
+              onClick={() => call("video")}
             />
             <IconButton
               children={

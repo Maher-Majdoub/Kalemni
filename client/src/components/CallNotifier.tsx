@@ -15,27 +15,30 @@ import {
   getConversationName,
   getConversationPicture,
 } from "../services/conversationServices";
+import { IoVideocam } from "react-icons/io5";
 
 const CallNotifier = () => {
   const socket = useSocketContext();
-  const [call, setCall] = useState<IConversation | null>(null);
+  const [{ conversation, type }, setCall] = useState<{
+    conversation: IConversation | null;
+    type: string | null;
+  }>({ conversation: null, type: null });
   const navigate = useNavigate();
 
   useEffect(() => {
-    socket?.on("new-call", ({ conversation }) => {
-      if (call) return;
-      setCall(conversation);
+    socket?.on("newCall", (conversation, type) => {
+      setCall({ conversation, type });
     });
   }, [socket]);
 
   const acceptOffer = () => {
-    if (!call) return;
-    const route = `/call/${call._id}`;
-    setCall(null);
+    if (!conversation) return;
+    const route = `/call/${conversation._id}?callType=${type}`;
+    setCall({ conversation: null, type: null });
     navigate(route);
   };
 
-  if (!call) return <></>;
+  if (!conversation) return <></>;
 
   return (
     <Snackbar open anchorOrigin={{ vertical: "top", horizontal: "center" }}>
@@ -50,16 +53,16 @@ const CallNotifier = () => {
           color="white"
           sx={{ backgroundColor: "#696969" }}
         >
-          <Avatar src={getConversationPicture(call)} />
+          <Avatar src={getConversationPicture(conversation)} />
           <Stack>
-            <Typography>{getConversationName(call)}</Typography>
+            <Typography>{getConversationName(conversation)}</Typography>
             <Typography variant="caption">Received Call</Typography>
           </Stack>
           <Stack direction="row" spacing={1}>
             <IconButton
               sx={{ backgroundColor: "#FF4E46", color: "white" }}
               onClick={() => {
-                setCall(null);
+                setCall({ conversation: null, type: null });
               }}
             >
               <MdCallEnd />
@@ -68,7 +71,7 @@ const CallNotifier = () => {
               sx={{ backgroundColor: "#3BCF60", color: "white" }}
               onClick={acceptOffer}
             >
-              <MdCall />
+              {type === "video" ? <IoVideocam /> : <MdCall />}
             </IconButton>
           </Stack>
         </Stack>

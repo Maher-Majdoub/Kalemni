@@ -1,4 +1,3 @@
-import { useAuthContext } from "../providers/AuthProvider";
 import { useMutation } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import ApiService from "../services/apiService";
