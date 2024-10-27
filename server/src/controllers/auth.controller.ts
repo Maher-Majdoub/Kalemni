@@ -17,7 +17,7 @@ export const signup = async (req: Request, res: Response) => {
   req.body.password = hashPassword(req.body.password);
 
   const user = await User.create(req.body);
-  res.send(user);
+  res.send({ token: makeToken({ _id: user._id }) });
 };
 
 export const login = async (req: Request, res: Response) => {
@@ -25,9 +25,10 @@ export const login = async (req: Request, res: Response) => {
   if (errors.length) return res.status(400).send({ errors: errors });
 
   const user = await User.findOne({ username: req.body.username });
+
   if (!user) return res.status(400).send({ message: "User not found." });
 
-  if (!validatePassword(req.body.password, user.password))
+  if (!validatePassword(req.body.password, user.password as string))
     return res.status(400).send({ message: "Invalid password" });
 
   res.status(201).send({ token: makeToken({ _id: user._id }) });
@@ -47,7 +48,7 @@ export const updateLoginInfos = async (req: Request, res: Response) => {
 
   const me = await getMe(req);
 
-  if (!validatePassword(oldPassword, me.password))
+  if (!validatePassword(oldPassword, me.password as string))
     return sendBadRequestResponse("Old password is incorrect", res);
 
   if (newPassword) me.password = hashPassword(newPassword);
@@ -55,4 +56,32 @@ export const updateLoginInfos = async (req: Request, res: Response) => {
 
   await me.save();
   res.send();
+};
+
+export const googleLogin = async (req: Request, res: Response) => {
+  const accessToken = req.body.accessToken;
+
+  if (!accessToken) return res.status(400).send({ message: "Invalid Token" });
+
+  const data = await fetch(
+    `https://www.googleapis.com/oauth2/v3/userinfo?access_token${accessToken}`,
+    {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }
+  ).then((res) => res.json());
+
+  const user = await User.findOne({ sub: data.sub });
+
+  if (user) return res.send({ token: makeToken({ _id: user._id }) });
+
+  const newUser = await User.create({
+    authType: "google",
+    sub: data.sub,
+    firstName: data.given_name,
+    lastName: data.family_name,
+  });
+
+  res.send({ token: makeToken({ _id: newUser._id }) });
 };

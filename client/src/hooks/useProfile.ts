@@ -13,6 +13,7 @@ export interface IProfileInfos {
 
 export interface IProfileData extends IProfileInfos {
   _id: string;
+  authType: "normal" | "google" | "facebook";
   profilePicture?: string;
   friends: IUserSnapshot[];
 }

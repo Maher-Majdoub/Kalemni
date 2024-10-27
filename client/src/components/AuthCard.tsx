@@ -12,9 +12,14 @@ import {
 } from "@mui/material";
 import facebookIcon from "../assets/facebook_icon.png";
 import googleIcon from "../assets/google_icon.png";
+import { useGoogleLogin } from "@react-oauth/google";
+import useSendGoogleLogin from "../hooks/useSendGoogleLogin";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   onSubmit(data: any): void;
+  onGoogleLogin(): void;
   isLoading: boolean;
   isSignup?: boolean;
 }
@@ -25,6 +30,21 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+  const { sendGoogleLogin, isSendGoolgeLoginSuccess } = useSendGoogleLogin();
+  const navigate = useNavigate();
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (data) => {
+      sendGoogleLogin({ accessToken: data.access_token });
+    },
+  });
+
+  useEffect(() => {
+    if (isSendGoolgeLoginSuccess) {
+      return navigate("/");
+    }
+  }, [isSendGoolgeLoginSuccess]);
+
   return (
     <Box
       padding={3}
@@ -122,6 +142,9 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
             color: "gray",
             borderColor: "gray",
             ".MuiButton-startIcon": { position: "absolute", left: "20px" },
+          }}
+          onClick={() => {
+            googleLogin();
           }}
         >
           Login with Google

@@ -8,6 +8,7 @@ import OnlineUsersProvider from "./providers/OnlineFriendsProvider";
 import WindowTypeProvider from "./providers/WindowTypeProvider";
 import "react-toastify/dist/ReactToastify.css";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const queryClient = new QueryClient();
 const theme = createTheme({
@@ -17,21 +18,25 @@ const theme = createTheme({
 });
 
 function App() {
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string;
+
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider theme={theme}>
-            <OnlineUsersProvider>
-              <WindowTypeProvider>
-                <RouterProvider router={router} />
-                <ReactQueryDevtools />
-              </WindowTypeProvider>
-            </OnlineUsersProvider>
-          </ThemeProvider>
-        </QueryClientProvider>
-      </SocketProvider>
-    </AuthProvider>
+    <GoogleOAuthProvider clientId={googleClientId}>
+      <AuthProvider>
+        <SocketProvider>
+          <QueryClientProvider client={queryClient}>
+            <ThemeProvider theme={theme}>
+              <OnlineUsersProvider>
+                <WindowTypeProvider>
+                  <RouterProvider router={router} />
+                  <ReactQueryDevtools />
+                </WindowTypeProvider>
+              </OnlineUsersProvider>
+            </ThemeProvider>
+          </QueryClientProvider>
+        </SocketProvider>
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 

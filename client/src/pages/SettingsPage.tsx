@@ -27,7 +27,7 @@ const SettingsPage = () => {
             }}
           >
             <UpdateProfileInfosForm />
-            <UpdateLoginInfosForm />
+            {profile.authType === "normal" && <UpdateLoginInfosForm />}
           </Box>
         </Stack>
       </Box>

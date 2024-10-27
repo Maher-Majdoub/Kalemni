@@ -1,25 +1,33 @@
 import { useEffect } from "react";
-import useLogin from "../hooks/useLogin";
 import { useNavigate } from "react-router-dom";
-import ColoredContainer from "../components/ColoredContainer";
+import { useGoogleLogin } from "@react-oauth/google";
+import useLogin from "../hooks/useLogin";
 import AuthCard from "../components/AuthCard";
-import { useAuthContext } from "../providers/AuthProvider";
+import ColoredContainer from "../components/ColoredContainer";
+import useSendGoogleLogin from "../hooks/useSendGoogleLogin";
 
 const LoginPage = () => {
   const { login, isLoginSuccess, isLoginPending } = useLogin();
-  const [_, setAuthToken] = useAuthContext();
+  const { sendGoogleLogin, isSendGoolgeLoginSuccess } = useSendGoogleLogin();
+
   const navigate = useNavigate();
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (data) => {
+      sendGoogleLogin({ accessToken: data.access_token });
+    },
+  });
 
   useEffect(() => {
-    if (isLoginSuccess) {
-      setAuthToken(localStorage.getItem("auth-token"));
-      navigate("/");
-    }
-  }, [isLoginSuccess]);
+    if (isLoginSuccess || isSendGoolgeLoginSuccess) navigate("/");
+  }, [isLoginSuccess, isSendGoolgeLoginSuccess]);
 
   return (
     <ColoredContainer>
-      <AuthCard onSubmit={login} isLoading={isLoginPending} />
+      <AuthCard
+        onSubmit={login}
+        isLoading={isLoginPending}
+        onGoogleLogin={googleLogin}
+      />
     </ColoredContainer>
   );
 };

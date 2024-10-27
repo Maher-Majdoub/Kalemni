@@ -19,8 +19,10 @@ export const userSnapshotFields = [
 ];
 
 export interface IUser extends IUserSnapshot {
-  username: string;
-  password: string;
+  authType: "normal" | "google" | "facebook";
+  username?: string;
+  password?: string;
+  sub?: string; // google acc unique id
   birthDate?: Date;
   gender: "m" | "f";
   friends: any;
@@ -46,9 +48,14 @@ export const userSnapshotSchema = new Schema({
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
-    username: { type: String, required: true, unique: true },
-    password: { type: String, required: true, unique: true },
-
+    authType: {
+      type: String,
+      enum: ["normal", "google", "facebook"],
+      default: "normal",
+    },
+    username: { type: String },
+    password: { type: String },
+    sub: { type: String },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     bio: { type: String },
