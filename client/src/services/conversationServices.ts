@@ -35,7 +35,8 @@ export const getMessageSnapshot = (conversation: IConversationSnapshot) => {
 
   if (!lastMessage) return "Start conversation";
   let message = "";
-  if (!conversation.isLastMessageSentByMe) message += `${sender?.firstName}: `;
+  if (!conversation.isLastMessageSentByMe)
+    message += `${sender ? sender.firstName : "user"}: `;
 
   if (lastMessage.type == "audio") message += "Sent a voice message";
   else if (lastMessage.type === "image") message += "Sent an image";

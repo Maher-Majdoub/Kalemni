@@ -8,6 +8,7 @@ import {
   getConversation,
   getSharedMedia,
   addUsersToGroupConversation,
+  leaveConversation,
 } from "../controllers/conversations.controller";
 
 const router = express.Router();
@@ -15,6 +16,7 @@ const router = express.Router();
 router.get("/", authMiddleware, getConversations);
 router.post("/create", authMiddleware, createGroupConversation);
 router.get("/:conversationId", authMiddleware, getConversation);
+router.delete("/:conversationId/leave", authMiddleware, leaveConversation);
 router.get("/:conversationId/shared-media", authMiddleware, getSharedMedia);
 router.post(
   "/:conversationId/messages/:messageType",

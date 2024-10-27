@@ -5,6 +5,7 @@ import {
   Avatar,
   Typography,
   Divider,
+  Button,
 } from "@mui/material";
 import { FaArrowLeft } from "react-icons/fa6";
 import { useWindowTypeContext } from "../providers/WindowTypeProvider";
@@ -14,7 +15,8 @@ import {
 } from "../services/conversationServices";
 import OnlineBadge from "./OnlineBadge";
 import useConversation from "../hooks/useConversation";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { IoCall, IoVideocam } from "react-icons/io5";
 
 interface Props {
   onClose(): void;
@@ -24,6 +26,7 @@ const ConversationDetailsHeader = ({ onClose = () => {} }: Props) => {
   const { conversationId } = useParams();
   const { conversation } = useConversation(conversationId as string);
   const { isLaptop } = useWindowTypeContext();
+  const navigate = useNavigate();
 
   if (!conversation) return <p>wait...</p>;
 
@@ -38,27 +41,43 @@ const ConversationDetailsHeader = ({ onClose = () => {} }: Props) => {
       )}
       <Box>
         <Stack
-          padding={7}
-          spacing={1}
+          padding="30px 5px"
+          spacing={2}
           alignItems="center"
           justifyContent="center"
         >
-          <Stack alignItems="center">
-            <Box>
-              <OnlineBadge isConnected>
-                <Avatar
-                  src={getConversationPicture(conversation)}
-                  sx={{ width: 60, height: 60 }}
-                />
-              </OnlineBadge>
-            </Box>
-          </Stack>
+          <OnlineBadge isConnected>
+            <Avatar
+              src={getConversationPicture(conversation)}
+              sx={{ width: 60, height: 60 }}
+            />
+          </OnlineBadge>
           <Box textAlign="center">
             <Typography>{getConversationName(conversation)}</Typography>
             <Typography variant="caption" color="gray">
               {conversation.type === "p" ? "private" : "group"} chat
             </Typography>
           </Box>
+          <Stack direction="row" spacing={2}>
+            <Button
+              size="small"
+              startIcon={<IoCall />}
+              onClick={() => {
+                navigate(`/call/${conversation._id}?callType=audio`);
+              }}
+            >
+              Audio Call
+            </Button>
+            <Button
+              size="small"
+              startIcon={<IoVideocam />}
+              onClick={() => {
+                navigate(`/call/${conversation._id}?callType=video`);
+              }}
+            >
+              Video Call
+            </Button>
+          </Stack>
         </Stack>
         <Divider />
       </Box>

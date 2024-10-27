@@ -6,7 +6,7 @@ import AuthCard from "../components/AuthCard";
 import { useAuthContext } from "../providers/AuthProvider";
 
 const LoginPage = () => {
-  const { login, isLoginSuccess, isLoginPending, isLoginError } = useLogin();
+  const { login, isLoginSuccess, isLoginPending } = useLogin();
   const [_, setAuthToken] = useAuthContext();
   const navigate = useNavigate();
 
@@ -16,10 +16,6 @@ const LoginPage = () => {
       navigate("/");
     }
   }, [isLoginSuccess]);
-
-  if (isLoginError) {
-    console.log("invalid login");
-  }
 
   return (
     <ColoredContainer>

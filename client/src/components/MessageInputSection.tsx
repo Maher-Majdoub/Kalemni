@@ -2,7 +2,7 @@ import { Paper, Stack, IconButton, Box } from "@mui/material";
 import { BsSendFill } from "react-icons/bs";
 import { GrAttachment } from "react-icons/gr";
 import { PiMicrophone } from "react-icons/pi";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSocketContext } from "../providers/SocketProvider";
 import { IMessageInput } from "../hooks/useSendMessage";
 import AudioRecordInput from "./AudioRecordInput";
@@ -42,6 +42,14 @@ const MessageInputSection = ({
     messageInputRef.current.value = "";
     handleInputChanges("");
   };
+
+  useEffect(() => {
+    return () => {
+      if (isWritting) {
+        socket?.emit("stopTyping", { conversationId: conversationId });
+      }
+    };
+  }, []);
 
   return (
     <Paper

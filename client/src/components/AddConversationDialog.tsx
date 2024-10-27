@@ -29,6 +29,7 @@ const AddConversationDialog = ({ open, onClose }: Props) => {
   const {
     register,
     handleSubmit,
+    resetField,
     formState: { errors },
   } = useForm();
   const {
@@ -53,7 +54,11 @@ const AddConversationDialog = ({ open, onClose }: Props) => {
   }, [friends, selectedFriends]);
 
   useEffect(() => {
-    if (isCreateConversationSuccess) onClose();
+    if (isCreateConversationSuccess) {
+      setSelectedFriends([]);
+      resetField("conversationName");
+      onClose();
+    }
   }, [isCreateConversationSuccess]);
 
   if (!friends) return <p>Wait ...</p>;

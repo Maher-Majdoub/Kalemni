@@ -202,3 +202,18 @@ export const addUsersToGroupConversation = async (
 
   res.status(201).send();
 };
+
+export const leaveConversation = async (req: Request, res: Response) => {
+  const conversationId = req.params["conversationId"];
+
+  const conversation = await Conversation.findByIdAndUpdate(conversationId, {
+    $pull: {
+      participants: { user: req.body.user._id },
+    },
+  });
+
+  if (!conversation)
+    return res.status(404).send({ message: "Conversation not found" });
+
+  res.status(204).send({});
+};

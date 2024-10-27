@@ -1,4 +1,4 @@
-import { Box, Stack } from "@mui/material";
+import { Avatar, Box, Stack } from "@mui/material";
 import MessageInputSection from "./MessageInputSection";
 import useSendMessage, { IMessageInput } from "../hooks/useSendMessage";
 import MessagesList from "./MessagesList";
@@ -10,6 +10,7 @@ import useUserEnteredConversation from "../hooks/useUserEnteredConversation";
 import { useDropzone } from "react-dropzone";
 import mime from "mime";
 import DropArea from "./DropArea";
+import TypingIndicator from "./TypingIndicator/TypingIndicator";
 
 interface Props {
   conversation: IConversation;
@@ -81,7 +82,13 @@ const ChatBox = ({ conversation }: Props) => {
       {showDropArea && <DropArea />}
       <MessagesList conversation={conversation} />
       {typingUsers.map((user) => (
-        <Box key={user._id}>{`${user.firstName} is typing...`}</Box>
+        // <Box key={user._id}>{`${user.firstName} is typing...`}</Box>
+        <Stack key={user._id} direction="row" alignItems="center" spacing={1}>
+          <Avatar src={user.profilePicture} sx={{ width: 30, height: 30 }} />
+          <Box>
+            <TypingIndicator />
+          </Box>
+        </Stack>
       ))}
       <MessageInputSection
         conversationId={conversation._id}

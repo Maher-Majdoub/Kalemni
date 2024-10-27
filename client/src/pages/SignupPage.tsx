@@ -5,18 +5,13 @@ import ColoredContainer from "../components/ColoredContainer";
 import AuthCard from "../components/AuthCard";
 
 export const SignupPage = () => {
-  const { signup, isSignupPending, isSignupSuccess, isSignupError, error } =
-    useSignup();
+  const { signup, isSignupPending, isSignupSuccess } = useSignup();
 
   const navigate = useNavigate();
 
   useEffect(() => {
     if (isSignupSuccess) navigate("/login");
   }, [isSignupSuccess]);
-
-  if (isSignupError) {
-    console.log(error);
-  }
 
   return (
     <ColoredContainer>

@@ -1,7 +1,8 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IConversation } from "./useConversation";
 import { AxiosError } from "axios";
 import ApiService from "../services/apiService";
+import { toast } from "react-toastify";
 
 interface CreateConversationInput {
   conversationName: string;
@@ -13,12 +14,21 @@ const useCreateConversation = () => {
     "/users/me/conversations/create"
   );
 
+  const queryClient = useQueryClient();
+
   const mutation = useMutation<
     IConversation,
-    AxiosError,
+    AxiosError<{ message: string }>,
     CreateConversationInput
   >({
     mutationFn: apiService.post,
+    onSuccess: () => {
+      queryClient.refetchQueries({ queryKey: ["conversations"] });
+      toast.success("Group created successfully");
+    },
+    onError: (error) => {
+      toast.error(error.response?.data.message);
+    },
   });
 
   return {

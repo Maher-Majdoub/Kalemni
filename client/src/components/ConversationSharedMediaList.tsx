@@ -6,11 +6,14 @@ const ConversationSharedMediaList = () => {
   const { conversationId } = useParams();
   const { sharedMedia } = useSharedMedia(conversationId as string);
   return (
-    <Stack spacing={1}>
+    <Stack spacing={1} flex={1} minHeight={0} padding="0 15px 20px">
       <Typography fontWeight="600" fontSize={17}>
         Shared Media
       </Typography>
       <Box
+        flex={1}
+        minHeight={0}
+        overflow="auto"
         sx={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(100px, 1fr))",

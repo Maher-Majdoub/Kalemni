@@ -7,12 +7,13 @@ import {
   useState,
 } from "react";
 import { BASE_URL } from "../services/apiClient";
+import { useAuthContext } from "./AuthProvider";
 
 const SocketContext = createContext<Socket | null>(null);
 
 export const useSocketContext = () => useContext(SocketContext);
 const SocketProvider = ({ children }: { children: ReactNode }) => {
-  const authToken = localStorage.getItem("auth-token");
+  const [authToken] = useAuthContext();
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {

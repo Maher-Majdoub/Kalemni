@@ -10,9 +10,10 @@ import {
   IoMicOffSharp,
 } from "react-icons/io5";
 import { MdCallEnd } from "react-icons/md";
-import LiveVideo from "./LiveVideo";
+import RemoteLiveVideo from "./RemoteLiveVideo";
 import { useWindowTypeContext } from "../providers/WindowTypeProvider";
-import useJoinCall from "../hooks/useJoinCall";
+import useJoinCall, { IPeer } from "../hooks/useJoinCall";
+import LocalLiveVideo from "./LocalLiveVideo";
 
 const Call = () => {
   const { conversationId } = useParams();
@@ -28,7 +29,7 @@ const Call = () => {
 
   const socket = useSocketContext();
   const navigate = useNavigate();
-  const [remoteStreams, setRemoteStreams] = useState<MediaStream[]>([]);
+  const [availablePeers, setAvailablePeers] = useState<IPeer[]>([]);
 
   const { joinCall, toggleEnableVideo, toggleEnableAudio, cleanup } =
     useJoinCall({
@@ -37,11 +38,11 @@ const Call = () => {
       localStreamRef,
       localVideoRef,
       onUpdateRemoteMedias: (peers) => {
-        const newStreams: MediaStream[] = [];
+        const newPeers: IPeer[] = [];
         peers.forEach((peer) => {
-          if (peer.stream) newStreams.push(peer.stream);
+          if (peer.stream) newPeers.push(peer);
         });
-        setRemoteStreams(newStreams);
+        setAvailablePeers(newPeers);
       },
     });
 
@@ -50,7 +51,7 @@ const Call = () => {
   }, [socket]);
 
   useEffect(() => {
-    const streamsCount = remoteStreams.length;
+    const streamsCount = availablePeers.length;
     if (streamsCount === 1) setGridTemplate("100% / 100%");
 
     if (streamsCount === 2)
@@ -58,7 +59,7 @@ const Call = () => {
 
     if (streamsCount === 3)
       setGridTemplate(isLaptop ? "33% 33% 34% / 100%" : "100% / 33% 33% 34%");
-  }, [remoteStreams, isLaptop]);
+  }, [availablePeers, isLaptop]);
 
   useEffect(() => {
     return cleanup(socket);
@@ -87,23 +88,13 @@ const Call = () => {
             gridTemplate: gridTemplate,
           }}
         >
-          {remoteStreams.map((stream, index) => (
+          {availablePeers.map((peer, index) => (
             <Box key={index} textAlign="center">
-              <LiveVideo stream={stream} muted={mute} />
+              <RemoteLiveVideo peer={peer} muted={mute} />
             </Box>
           ))}
         </Box>
-        <Box
-          position="absolute"
-          top={10}
-          right={10}
-          width="100px"
-          height="180px"
-          borderRadius={3}
-          overflow="hidden"
-        >
-          <video ref={localVideoRef} autoPlay muted width="100%" />
-        </Box>
+        <LocalLiveVideo localVideoRef={localVideoRef} isEnabled={enableVideo} />
         <Stack
           direction="row"
           borderRadius={10}
@@ -112,6 +103,7 @@ const Call = () => {
           position="absolute"
           bottom={30}
           left="50%"
+          zIndex={999}
           color="white"
           sx={{ transform: "translate(-50%, 0)", backgroundColor: "#272727eb" }}
         >
@@ -139,6 +131,7 @@ const Call = () => {
           <IconButton
             sx={{ backgroundColor: "#FF4E46", color: "white" }}
             onClick={() => {
+              cleanup(socket);
               navigate("/");
             }}
           >

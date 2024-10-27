@@ -144,12 +144,21 @@ const handleIoConnection = async (socket: Socket) => {
   );
 
   socket.on("join", async (room, type) => {
-    if (!io.sockets.adapter.rooms.get(room)?.size) {
-      // new call
-      const conversation = await Conversation.findById(room).populate({
-        path: "participants.user",
-        select: userSnapshotFields,
-      });
+    const conversation = await Conversation.findById(room).populate({
+      path: "participants.user",
+      select: userSnapshotFields,
+    });
+    const participant = conversation?.participants.find((participant) =>
+      participant.user._id.equals(userId)
+    );
+
+    if (!participant) return;
+
+    const user = participant.user;
+    socket.join(room);
+    socket.to(room).emit("newParticipant", user);
+
+    if (io.sockets.adapter.rooms.get(room)?.size === 1) {
       conversation?.participants.forEach((participant) => {
         const socketId = getSocketId(participant.user._id.toString());
         if (socketId === socket.id) return;
@@ -157,14 +166,15 @@ const handleIoConnection = async (socket: Socket) => {
         if (socketId) io.to(socketId).emit("newCall", conversation, type);
       });
     }
-
-    socket.join(room);
-    socket.to(room).emit("newParticipant", userId);
   });
 
-  socket.on("offer", (id, offer) => {
+  socket.on("offer", async (id, offer) => {
     const socketId = getSocketId(id);
-    if (socketId) socket.to(socketId).emit("offer", userId, offer);
+    if (socketId) {
+      const user = await User.findById(userId);
+      if (!user) return;
+      socket.to(socketId).emit("offer", user.getSnapshot(), offer);
+    }
   });
 
   socket.on("answer", (id, answer) => {
