@@ -180,6 +180,14 @@ export const createGroupConversation = async (req: Request, res: Response) => {
 
   await conversation.save();
   res.status(201).send(conversation);
+
+  conversation.participants.forEach((participant) => {
+    const userId = participant.user.toString();
+    if (userId === req.body.user._id) return;
+
+    const socketId = getSocketId(userId);
+    if (socketId) io.to(socketId).emit("newConversation");
+  });
 };
 
 export const addUsersToGroupConversation = async (

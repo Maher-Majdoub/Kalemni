@@ -30,8 +30,6 @@ const ConversationHeader = ({
   showDetails,
   onToggleShowDetails,
 }: Props) => {
-  const isConnected = true;
-
   const navigate = useNavigate();
   const { isPhone } = useWindowTypeContext();
 
@@ -58,8 +56,17 @@ const ConversationHeader = ({
                 </IconButton>
               </Box>
             )}
-            <OnlineBadge isConnected={isConnected}>
-              <Avatar src={getConversationPicture(conversation)} />
+            <OnlineBadge
+              userId={
+                conversation.type === "g"
+                  ? undefined
+                  : conversation.participants[0].user._id
+              }
+            >
+              <Avatar
+                src={getConversationPicture(conversation)}
+                sx={{ width: 50, height: 50 }}
+              />
             </OnlineBadge>
             <Stack>
               <Typography variant="body2">

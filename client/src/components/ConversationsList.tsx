@@ -8,6 +8,7 @@ import {
 } from "../services/conversationServices";
 import { useNavigate } from "react-router-dom";
 import { MdDone } from "react-icons/md";
+import ConversationsListSkeleton from "./Skeletons/ConversationsListSkeleton";
 
 const getTimeFromDate = (date: any) => {
   const d = new Date(date);
@@ -23,8 +24,10 @@ const getTimeFromDate = (date: any) => {
 };
 
 const ConversationsList = () => {
-  const { conversations } = useConversations();
+  const { conversations, isConversationsPending } = useConversations();
   const navigate = useNavigate();
+
+  if (isConversationsPending) return <ConversationsListSkeleton />;
 
   return (
     <Stack sx={{ overflowY: "auto" }}>
@@ -47,8 +50,17 @@ const ConversationsList = () => {
                 paddingRight={3}
               >
                 <Stack direction="row" spacing={2}>
-                  <OnlineBadge isConnected>
-                    <Avatar src={getConversationPicture(conversation)} />
+                  <OnlineBadge
+                    userId={
+                      conversation.type === "g"
+                        ? undefined
+                        : conversation.participants[0].user._id
+                    }
+                  >
+                    <Avatar
+                      src={getConversationPicture(conversation)}
+                      sx={{ width: 45, height: 45 }}
+                    />
                   </OnlineBadge>
                   <Stack>
                     <Typography variant="subtitle2">

@@ -82,7 +82,6 @@ const ChatBox = ({ conversation }: Props) => {
       {showDropArea && <DropArea />}
       <MessagesList conversation={conversation} />
       {typingUsers.map((user) => (
-        // <Box key={user._id}>{`${user.firstName} is typing...`}</Box>
         <Stack key={user._id} direction="row" alignItems="center" spacing={1}>
           <Avatar src={user.profilePicture} sx={{ width: 30, height: 30 }} />
           <Box>

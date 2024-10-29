@@ -1,9 +1,10 @@
 import { Types } from "mongoose";
 import { createFriendship, getMe } from "./utils";
-import { isConnected } from "../socket";
+import { getSocketId, isConnected } from "../socket";
 import { Request, Response } from "express";
 import User, { userSnapshotFields } from "../models/user.model";
 import Conversation from "../models/conversation.model";
+import { io } from "../app";
 
 export const getFriends = async (req: Request, res: Response) => {
   const user = await (await getMe(req)).populate("friends");
@@ -73,6 +74,9 @@ export const sendFriendRequest = async (req: Request, res: Response) => {
 
   if (!user) return res.status(404).send({ message: "User not found" });
   res.send();
+
+  const socketId = getSocketId(userId);
+  if (socketId) io.to(socketId).emit("newFriendRequest");
 };
 
 export const acceptFriendRequest = async (req: Request, res: Response) => {

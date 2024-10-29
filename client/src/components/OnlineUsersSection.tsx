@@ -23,7 +23,7 @@ const OnlineUsersSection = () => {
   };
 
   return (
-    <Stack spacing={1} paddingLeft={3} paddingRight={3}>
+    <Stack spacing={1} paddingLeft={2} paddingRight={2}>
       <Typography variant="subtitle1">Online Now</Typography>
       <Stack
         spacing={1}
@@ -39,7 +39,7 @@ const OnlineUsersSection = () => {
             key={onlineFriend._id}
             onClick={() => navigateToConversation(onlineFriend._id)}
           >
-            <OnlineBadge isConnected>
+            <OnlineBadge userId={onlineFriend._id}>
               <Avatar src={onlineFriend.profilePicture} />
             </OnlineBadge>
           </ButtonBase>

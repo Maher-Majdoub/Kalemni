@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGoogleLogin } from "@react-oauth/google";
+import AuthCard from "../components/AuthCard";
 import useSignup from "../hooks/useSignup";
 import ColoredContainer from "../components/ColoredContainer";
-import AuthCard from "../components/AuthCard";
-import { useGoogleLogin } from "@react-oauth/google";
 import useSendGoogleLogin from "../hooks/useSendGoogleLogin";
 
 export const SignupPage = () => {

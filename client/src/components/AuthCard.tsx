@@ -10,12 +10,7 @@ import {
   Link,
   CircularProgress,
 } from "@mui/material";
-import facebookIcon from "../assets/facebook_icon.png";
 import googleIcon from "../assets/google_icon.png";
-import { useGoogleLogin } from "@react-oauth/google";
-import useSendGoogleLogin from "../hooks/useSendGoogleLogin";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface Props {
   onSubmit(data: any): void;
@@ -24,27 +19,17 @@ interface Props {
   isSignup?: boolean;
 }
 
-const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
+const AuthCard = ({
+  onSubmit,
+  onGoogleLogin,
+  isLoading,
+  isSignup = false,
+}: Props) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm();
-  const { sendGoogleLogin, isSendGoolgeLoginSuccess } = useSendGoogleLogin();
-  const navigate = useNavigate();
-
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (data) => {
-      sendGoogleLogin({ accessToken: data.access_token });
-    },
-  });
-
-  useEffect(() => {
-    if (isSendGoolgeLoginSuccess) {
-      return navigate("/");
-    }
-  }, [isSendGoolgeLoginSuccess]);
-
   return (
     <Box
       padding={3}
@@ -69,6 +54,14 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
                       message: "This field is required",
                       value: true,
                     },
+                    minLength: {
+                      value: 3,
+                      message: "First name length should be between 3 and 20",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "First name length should be between 3 and 20",
+                    },
                   })}
                   label="First Name"
                   helperText={errors.firstName?.message?.toString()}
@@ -80,6 +73,14 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
                       message: "This field is required",
                       value: true,
                     },
+                    minLength: {
+                      value: 3,
+                      message: "Last name length should be between 3 and 20",
+                    },
+                    maxLength: {
+                      value: 20,
+                      message: "Last name length should be between 3 and 20",
+                    },
                   })}
                   label="Last Name"
                   helperText={errors.firstName?.message?.toString()}
@@ -90,6 +91,14 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
             <TextField
               {...register("username", {
                 required: { message: "This field is required", value: true },
+                minLength: {
+                  value: 3,
+                  message: "Username length should be between 5 and 30",
+                },
+                maxLength: {
+                  value: 30,
+                  message: "Username length should be between 5 and 30",
+                },
               })}
               label="Username"
               helperText={errors.username?.message?.toString()}
@@ -98,6 +107,14 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
             <TextField
               {...register("password", {
                 required: { message: "This field is required", value: true },
+                minLength: {
+                  value: 3,
+                  message: "Password length should be between 5 and 30",
+                },
+                maxLength: {
+                  value: 30,
+                  message: "Password length should be between 5 and 30",
+                },
               })}
               label="Password"
               type="password"
@@ -127,15 +144,6 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
         )}
         <Divider sx={{ color: "gray" }}>Or</Divider>
         <Button
-          variant="contained"
-          startIcon={<img src={facebookIcon} width={25} />}
-          sx={{
-            ".MuiButton-startIcon": { position: "absolute", left: "20px" },
-          }}
-        >
-          Login with Facebook
-        </Button>
-        <Button
           variant="outlined"
           startIcon={<img src={googleIcon} width={25} />}
           sx={{
@@ -143,9 +151,7 @@ const AuthCard = ({ onSubmit, isLoading, isSignup = false }: Props) => {
             borderColor: "gray",
             ".MuiButton-startIcon": { position: "absolute", left: "20px" },
           }}
-          onClick={() => {
-            googleLogin();
-          }}
+          onClick={onGoogleLogin}
         >
           Login with Google
         </Button>

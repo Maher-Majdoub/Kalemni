@@ -144,6 +144,12 @@ const handleIoConnection = async (socket: Socket) => {
   );
 
   socket.on("join", async (room, type) => {
+    const availableRoom = io.sockets.adapter.rooms.get(room);
+    if (availableRoom && availableRoom.size >= 4) {
+      io.to(socket.id).emit("fullCall");
+      return;
+    }
+
     const conversation = await Conversation.findById(room).populate({
       path: "participants.user",
       select: userSnapshotFields,

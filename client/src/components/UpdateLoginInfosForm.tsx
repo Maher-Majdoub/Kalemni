@@ -55,6 +55,14 @@ const UpdateLoginInfosForm = () => {
           type="password"
           {...register("oldPassword", {
             required: { value: true, message: "Old password is required" },
+            minLength: {
+              value: 3,
+              message: "Password length should be between 5 and 30",
+            },
+            maxLength: {
+              value: 30,
+              message: "Password length should be between 5 and 30",
+            },
           })}
           error={!!errors.oldPassword}
           helperText={errors.oldPassword?.message?.toString()}

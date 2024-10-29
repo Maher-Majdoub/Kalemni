@@ -41,12 +41,22 @@ const useListenToConversations = () => {
       lastSawMessageId: messageId,
     });
 
+  const updateConversations = () => {
+    queryClient.refetchQueries({ queryKey: ["conversations"] });
+  };
+
+  const updateFriendRequests = () => {
+    queryClient.refetchQueries({ queryKey: ["friend-requests"] });
+  };
+
   useEffect(() => {
     if (socket) {
       socket.on("newMessage", addMessage);
       socket.on("startTyping", setIsUserTyping);
       socket.on("stopTyping", setIsUserTyping);
       socket.on("sawMessage", setUserSawMessage);
+      socket.on("newConversation", updateConversations);
+      socket.on("newFriendRequest", updateFriendRequests);
     }
   }, [socket]);
 };

@@ -1,5 +1,6 @@
 import { Badge, styled } from "@mui/material";
 import { ReactNode } from "react";
+import { useOnlineFriendsProivder } from "../providers/OnlineFriendsProvider";
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
   "& .MuiBadge-badge": {
@@ -14,21 +15,31 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 interface Props {
-  isConnected: boolean;
   children: ReactNode;
+  userId?: string | undefined;
+  setOnline?: boolean;
 }
 
-const OnlineBadge = ({ isConnected, children }: Props) => (
-  <StyledBadge
-    overlap="circular"
-    anchorOrigin={{
-      vertical: "bottom",
-      horizontal: "right",
-    }}
-    variant={isConnected ? "dot" : undefined}
-  >
-    {children}
-  </StyledBadge>
-);
+const OnlineBadge = ({
+  children,
+  userId = undefined,
+  setOnline = false,
+}: Props) => {
+  const onlineFriends = useOnlineFriendsProivder();
+  const isConnected = !!onlineFriends.find((friend) => friend._id === userId);
+
+  return (
+    <StyledBadge
+      overlap="circular"
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "right",
+      }}
+      variant={isConnected || setOnline ? "dot" : undefined}
+    >
+      {children}
+    </StyledBadge>
+  );
+};
 
 export default OnlineBadge;

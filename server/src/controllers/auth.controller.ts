@@ -5,7 +5,7 @@ import User, {
   validateUpdateLoginInfosData,
 } from "../models/user.model";
 import { hashPassword, makeToken, validatePassword } from "../utils";
-import { sendBadRequestResponse, getMe } from "./utils";
+import { sendBadRequestResponse } from "./utils";
 
 export const signup = async (req: Request, res: Response) => {
   const errors = validateCreateUser(req.body);
@@ -43,10 +43,24 @@ export const updateLoginInfos = async (req: Request, res: Response) => {
   const newUsername = req.body.data.newUsername;
   const oldPassword = req.body.data.oldPassword;
 
+  if (newPassword && (newPassword.length < 5 || newPassword.length > 30))
+    return res
+      .status(400)
+      .send({ message: "Password Length should be between 5 and 30" });
+
+  if (newUsername && (newUsername.length < 5 || newUsername.length > 30))
+    return res
+      .status(400)
+      .send({ message: "User name Length should be between 5 and 30" });
+
   if (!newPassword && !newUsername)
     return sendBadRequestResponse("You Should update at least one field", res);
 
-  const me = await getMe(req);
+  const me = await User.findById(req.body.user._id);
+  if (!me) return res.status(505).send({ message: "Something Went Wrong" });
+
+  if (me.authType !== "normal")
+    return res.status(400).send({ message: "Invalid Operation" });
 
   if (!validatePassword(oldPassword, me.password as string))
     return sendBadRequestResponse("Old password is incorrect", res);

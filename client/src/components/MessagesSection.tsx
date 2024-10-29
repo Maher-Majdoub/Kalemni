@@ -1,5 +1,4 @@
-import { Stack, Typography, Box, IconButton } from "@mui/material";
-import { CiSearch } from "react-icons/ci";
+import { Stack, Typography, IconButton } from "@mui/material";
 import { IoIosAddCircleOutline } from "react-icons/io";
 import ConversationsList from "./ConversationsList";
 import AddConversationDialog from "./AddConversationDialog";
@@ -22,18 +21,6 @@ const MessagesSection = () => {
           <IoIosAddCircleOutline />
         </IconButton>
       </Stack>
-      <Box paddingLeft={2} paddingRight={2}>
-        <Stack
-          direction="row"
-          alignItems="center"
-          padding={1}
-          borderRadius={2}
-          sx={{ backgroundColor: "white" }}
-        >
-          <CiSearch size={20} />
-          <input placeholder="Search" />
-        </Stack>
-      </Box>
       <ConversationsList />
       <AddConversationDialog
         open={showCreateGroupDialog}

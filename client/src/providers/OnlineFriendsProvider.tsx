@@ -1,9 +1,17 @@
-import { createContext, ReactNode, useEffect, useState } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { IUserSnapshot } from "../hooks/useFriends";
 import useOnlineFriends from "../hooks/useOnlineFriends";
 import { useSocketContext } from "./SocketProvider";
 
 export const OnlineFriendsContext = createContext<IUserSnapshot[]>([]);
+
+export const useOnlineFriendsProivder = () => useContext(OnlineFriendsContext);
 
 const OnlineFriendsProvider = ({ children }: { children: ReactNode }) => {
   const [connectedFriends, setConnectedFriends] = useState<IUserSnapshot[]>([]);

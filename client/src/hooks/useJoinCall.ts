@@ -15,6 +15,7 @@ interface Props {
   localStreamRef: React.MutableRefObject<MediaStream | null>;
   localVideoRef: React.MutableRefObject<HTMLVideoElement | null>;
   onUpdateRemoteMedias(peers: IPeer[]): void;
+  onFullCall(): void;
 }
 
 const peers: Map<string, IPeer> = new Map();
@@ -25,6 +26,7 @@ const useJoinCall = ({
   localStreamRef,
   localVideoRef,
   onUpdateRemoteMedias,
+  onFullCall,
 }: Props) => {
   const joinCall = async (socket: Socket) => {
     const localStream = await navigator.mediaDevices.getUserMedia({
@@ -167,6 +169,8 @@ const useJoinCall = ({
         onUpdateRemoteMedias(Array.from(peers.values()));
       }
     });
+
+    socket.on("fullCall", onFullCall);
   };
 
   const toggleEnableVideo = async ({

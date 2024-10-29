@@ -46,7 +46,7 @@ const ConversationDetailsHeader = ({ onClose = () => {} }: Props) => {
           alignItems="center"
           justifyContent="center"
         >
-          <OnlineBadge isConnected>
+          <OnlineBadge userId={conversation.participants[0].user._id}>
             <Avatar
               src={getConversationPicture(conversation)}
               sx={{ width: 60, height: 60 }}

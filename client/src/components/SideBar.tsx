@@ -8,12 +8,12 @@ import {
   Tooltip,
 } from "@mui/material";
 import { TbAlertCircle } from "react-icons/tb";
-import { RxExit } from "react-icons/rx";
-import NavBar from "./NavBar";
-import logoTestImage from "../assets/logo_test_image.png";
-import useLogout from "../hooks/useLogout";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { RxExit } from "react-icons/rx";
+import NavBar from "./NavBar";
+import useLogout from "../hooks/useLogout";
+import logo from "../assets/logo.png";
 
 interface Props {
   onClose?(): void;
@@ -31,11 +31,17 @@ const SideBar = ({ onClose = () => {} }: Props) => {
         height="100%"
         sx={{ justifyContent: "space-between", alignItems: "center" }}
       >
-        <img src={logoTestImage} className="logo" />
+        <img src={logo} className="logo" />
         <NavBar onChange={onClose} />
         <Stack spacing={1}>
-          <Tooltip title="About">
-            <IconButton children={<TbAlertCircle />} onClick={onClose} />
+          <Tooltip title="About Developer">
+            <IconButton
+              children={<TbAlertCircle />}
+              onClick={() => {
+                navigate("/about-developer");
+                onClose();
+              }}
+            />
           </Tooltip>
           <Tooltip title="Logout">
             <IconButton

@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import ChatBox from "./ChatBox";
-import ConversationDetails from "./ConversationDetails";
-import useConversation from "../hooks/useConversation";
-import { Drawer, Stack } from "@mui/material";
-import ConversationHeader from "./ConversationHeader";
-import { useWindowTypeContext } from "../providers/WindowTypeProvider";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { CircularProgress, Drawer, Stack } from "@mui/material";
+import { useEffect, useState } from "react";
+import { useWindowTypeContext } from "../providers/WindowTypeProvider";
+import ConversationDetails from "./ConversationDetails";
+import ConversationHeader from "./ConversationHeader";
+import useConversation from "../hooks/useConversation";
+import ChatBox from "./ChatBox";
 
 const Conversation = ({ conversationId }: { conversationId: string }) => {
   const [showDetails, setShowDetails] = useState(false);
@@ -23,7 +23,17 @@ const Conversation = ({ conversationId }: { conversationId: string }) => {
     }
   }, [isGetConversationError]);
 
-  if (!conversation) return <p>wait...</p>;
+  if (!conversation)
+    return (
+      <Stack
+        height="100vh"
+        flex={1}
+        alignItems="center"
+        justifyContent="center"
+      >
+        <CircularProgress />
+      </Stack>
+    );
 
   return (
     <>

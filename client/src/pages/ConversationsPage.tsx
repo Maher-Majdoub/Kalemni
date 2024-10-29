@@ -1,9 +1,9 @@
 import { Stack } from "@mui/material";
-import MessagesSection from "../components/MessagesSection";
-import OnlineUsersSection from "../components/OnlineUsersSection";
+import { useWindowTypeContext } from "../providers/WindowTypeProvider";
 import ProfileSection from "../components/ProfileSection";
 import NavBarContainer from "../components/NavBarContainer";
-import { useWindowTypeContext } from "../providers/WindowTypeProvider";
+import MessagesSection from "../components/MessagesSection";
+import OnlineUsersSection from "../components/OnlineUsersSection";
 
 const ConversationsPage = () => {
   const { isPhone } = useWindowTypeContext();

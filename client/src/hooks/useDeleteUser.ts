@@ -1,14 +1,16 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import ApiService from "../services/apiService";
 import { toast } from "react-toastify";
 import { AxiosError } from "axios";
 
 const useDeleteFriend = (userId: string) => {
   const apiService = new ApiService(`/users/me/friends/${userId}`);
+  const queryQlient = useQueryClient();
 
   const mutation = useMutation<{}, AxiosError, {}>({
     mutationFn: apiService.delete,
     onSuccess: () => {
+      queryQlient.invalidateQueries({ queryKey: ["friends"] });
       toast.success("Friend deleted successfully");
     },
     onError: () => {

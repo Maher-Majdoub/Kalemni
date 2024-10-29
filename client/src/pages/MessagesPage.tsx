@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { Stack } from "@mui/material";
-import MessagesSection from "../components/MessagesSection";
-import ProfileSection from "../components/ProfileSection";
-import OnlineUsersSection from "../components/OnlineUsersSection";
-import Conversation from "../components/Conversation";
 import { useNavigate, useParams } from "react-router-dom";
 import { useWindowTypeContext } from "../providers/WindowTypeProvider";
+import Conversation from "../components/Conversation";
+import ProfileSection from "../components/ProfileSection";
 import NavBarContainer from "../components/NavBarContainer";
+import MessagesSection from "../components/MessagesSection";
+import OnlineUsersSection from "../components/OnlineUsersSection";
 
 const MessagesPage = () => {
   const { conversationId } = useParams();

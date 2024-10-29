@@ -14,6 +14,7 @@ import RemoteLiveVideo from "./RemoteLiveVideo";
 import { useWindowTypeContext } from "../providers/WindowTypeProvider";
 import useJoinCall, { IPeer } from "../hooks/useJoinCall";
 import LocalLiveVideo from "./LocalLiveVideo";
+import { toast } from "react-toastify";
 
 const Call = () => {
   const { conversationId } = useParams();
@@ -43,6 +44,10 @@ const Call = () => {
           if (peer.stream) newPeers.push(peer);
         });
         setAvailablePeers(newPeers);
+      },
+      onFullCall: () => {
+        toast.info("The Call Is Full");
+        navigate("/");
       },
     });
 

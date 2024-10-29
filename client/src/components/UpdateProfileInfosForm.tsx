@@ -62,6 +62,14 @@ const UpdateProfileInfosForm = () => {
             defaultValue={profile?.firstName}
             {...register("firstName", {
               required: { value: true, message: "First name is required" },
+              minLength: {
+                value: 3,
+                message: "First name length should be between 3 and 20",
+              },
+              maxLength: {
+                value: 20,
+                message: "First name length should be between 3 and 20",
+              },
             })}
             error={!!errors.firstName}
             helperText={errors.firstName?.message?.toString()}
@@ -71,6 +79,14 @@ const UpdateProfileInfosForm = () => {
             defaultValue={profile?.lastName}
             {...register("lastName", {
               required: { value: true, message: "Last name is required" },
+              minLength: {
+                value: 3,
+                message: "Last name length should be between 3 and 20",
+              },
+              maxLength: {
+                value: 20,
+                message: "Last name length should be between 3 and 20",
+              },
             })}
             error={!!errors.lastName}
             helperText={errors.lastName?.message?.toString()}

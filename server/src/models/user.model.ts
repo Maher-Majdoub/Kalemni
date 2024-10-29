@@ -19,7 +19,7 @@ export const userSnapshotFields = [
 ];
 
 export interface IUser extends IUserSnapshot {
-  authType: "normal" | "google" | "facebook";
+  authType: "normal" | "google";
   username?: string;
   password?: string;
   sub?: string; // google acc unique id
@@ -50,7 +50,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>(
   {
     authType: {
       type: String,
-      enum: ["normal", "google", "facebook"],
+      enum: ["normal", "google"],
       default: "normal",
     },
     username: { type: String },
@@ -89,8 +89,8 @@ const User = mongoose.model("User", userSchema);
 export default User;
 
 const userAuthJoiObject = {
-  username: Joi.string().required(),
-  password: Joi.string().required(),
+  username: Joi.string().min(5).max(30).required(),
+  password: Joi.string().min(5).max(30).required(),
 };
 
 export const validateAuthUser = (data: object) => {
@@ -102,8 +102,8 @@ export const validateAuthUser = (data: object) => {
 export const validateCreateUser = (data: object) => {
   const schema = Joi.object({
     ...userAuthJoiObject,
-    firstName: Joi.string().required(),
-    lastName: Joi.string().required(),
+    firstName: Joi.string().min(3).max(20).required(),
+    lastName: Joi.string().min(3).max(20).required(),
   });
 
   return extractJoiErrors(schema.validate(data, { abortEarly: false }).error);
