@@ -1,0 +1,26 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const auth_middleware_1 = __importDefault(require("../middlewares/auth.middleware"));
+const user_controller_1 = require("../controllers/user.controller");
+const friends_controller_1 = require("../controllers/friends.controller");
+const upload_profile_picture_middleware_1 = require("../middlewares/upload_profile_picture.middleware");
+const auth_controller_1 = require("../controllers/auth.controller");
+const router = express_1.default.Router();
+router.get("/me", auth_middleware_1.default, user_controller_1.getProfile);
+router.patch("/me/profile/infos", auth_middleware_1.default, user_controller_1.updateProfileInfos);
+router.patch("/me/profile/picture", auth_middleware_1.default, upload_profile_picture_middleware_1.uploadProfilePictureMiddleware, user_controller_1.updateProfilePicture);
+router.delete("/me/profile/picture", auth_middleware_1.default, user_controller_1.deleteProfilePicture);
+router.patch("/me/auth", auth_middleware_1.default, auth_controller_1.updateLoginInfos);
+router.get("/me/friends", auth_middleware_1.default, friends_controller_1.getFriends);
+router.get("/me/friends/online", auth_middleware_1.default, friends_controller_1.getOnlineFriends);
+router.get("/find", auth_middleware_1.default, friends_controller_1.getNewFriends);
+router.get("/me/friends/requests", auth_middleware_1.default, friends_controller_1.getFriendRequests);
+router.delete("/me/friends/:userId", auth_middleware_1.default, friends_controller_1.deleteFriend);
+router.post("/me/friends/requests/:requestId/accept", auth_middleware_1.default, friends_controller_1.acceptFriendRequest);
+router.post("/me/friends/requests/:requestId/refuse", auth_middleware_1.default, friends_controller_1.refuseFriendRequest);
+router.post("/:userId/friend-requests", auth_middleware_1.default, friends_controller_1.sendFriendRequest);
+exports.default = router;
