@@ -2,7 +2,7 @@ import { Skeleton, Stack } from "@mui/material";
 
 const ProfileSnapshotSkeleton = () => {
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction="row" spacing={2} padding={2}>
       <Skeleton variant="circular" width={40} height={40} />
       <Stack>
         <Skeleton height={20} width={70} />

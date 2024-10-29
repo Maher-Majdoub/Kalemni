@@ -9,10 +9,10 @@ import SettingsPage from "./pages/SettingsPage";
 import Call from "./components/Call";
 import { ReactNode } from "react";
 import AboutDeveloperPage from "./pages/AboutDeveloperPage";
+import ServerDownPage from "./pages/ServerDownPage";
 
 const PrivateRoute = ({ element }: { element: ReactNode }) => {
   const token = localStorage.getItem("auth-token");
-
   return token ? element : <Navigate to="/login" />;
 };
 
@@ -55,10 +55,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/about-developer",
-        element: <PrivateRoute element={<AboutDeveloperPage />} />,
+        element: <AboutDeveloperPage />,
       },
       { path: "/signup", element: <SignupPage /> },
       { path: "/login", element: <LoginPage /> },
+      { path: "/server-down", element: <ServerDownPage /> },
     ],
   },
 ]);

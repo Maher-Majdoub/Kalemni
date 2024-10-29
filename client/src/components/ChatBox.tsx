@@ -11,6 +11,7 @@ import { useDropzone } from "react-dropzone";
 import mime from "mime";
 import DropArea from "./DropArea";
 import TypingIndicator from "./TypingIndicator/TypingIndicator";
+import { toast } from "react-toastify";
 
 interface Props {
   conversation: IConversation;
@@ -38,7 +39,10 @@ const ChatBox = ({ conversation }: Props) => {
       "audio/*": [],
       "video/*": [],
     },
-
+    maxSize: 1 * 1024 * 1024,
+    onDropRejected: () => {
+      toast.info("Please select a valid file (Max size = 1mo)");
+    },
     onDropAccepted(files) {
       files.forEach((file) => {
         const fileType = mime.getType(file.name);

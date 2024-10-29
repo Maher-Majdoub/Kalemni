@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import useAddMessage from "./useAddMessage";
 import useProfile from "./useProfile";
 import ApiService from "../services/apiService";
+import { toast } from "react-toastify";
 
 export interface IMessageInput {
   content: string;
@@ -43,7 +44,12 @@ const useSendMessage = (conversationId: string) => {
   const queryClient = useQueryClient();
   const { profile } = useProfile();
 
-  const mutation = useMutation<IMessage, AxiosError, IMessageInput, string>({
+  const mutation = useMutation<
+    IMessage,
+    AxiosError<{ message: string }>,
+    IMessageInput,
+    string
+  >({
     mutationFn: (data) => sendMessage(data),
     onMutate: (variables) => {
       const { addMessage } = useAddMessage(queryClient);
@@ -80,6 +86,23 @@ const useSendMessage = (conversationId: string) => {
               if (message._id === context) return { ...message, ...data };
               return message;
             }),
+          };
+        }
+      );
+    },
+    onError: (error, _, context) => {
+      if (error.response?.data.message)
+        toast.error(error.response?.data.message);
+
+      queryClient.setQueryData(
+        ["conversation", conversationId],
+        (oldData: IConversation) => {
+          if (!oldData) return;
+          return {
+            ...oldData,
+            messages: oldData.messages.filter(
+              (message) => message._id !== context
+            ),
           };
         }
       );

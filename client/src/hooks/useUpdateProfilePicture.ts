@@ -13,7 +13,11 @@ const useUpdateProfilePicture = (queryClient: QueryClient) => {
     "/users/me/profile/picture"
   );
 
-  const mutation = useMutation<TData, AxiosError, FormData>({
+  const mutation = useMutation<
+    TData,
+    AxiosError<{ message: string }>,
+    FormData
+  >({
     mutationFn: apiService.patchFormData,
     onSuccess: ({ picture }) => {
       queryClient.setQueryData(["me"], (oldData: IProfileData) => {
@@ -21,8 +25,10 @@ const useUpdateProfilePicture = (queryClient: QueryClient) => {
       });
       toast.success("Profile picture updated successfully");
     },
-    onError: () => {
-      toast.error("Something went wrong while updating profile picture");
+    onError: (err) => {
+      if (err.response?.data.message) {
+        toast.error(err.response?.data.message);
+      }
     },
   });
 
