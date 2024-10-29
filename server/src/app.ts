@@ -14,10 +14,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(cors());
 
-if (process.env.NODE_ENV === "production") {
-  app.use(helmet());
-  app.use(compress);
-}
+// if (process.env.NODE_ENV === "production") {
+//   app.use(helmet());
+//   app.use(compress);
+// }
 
 app.get("/", (req, res) => {
   res.send("api is working");
