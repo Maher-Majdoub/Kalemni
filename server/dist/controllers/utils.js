@@ -29,7 +29,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.verifyToken = exports.makeToken = exports.validatePassword = exports.hashPassword = exports.extractJoiErrors = exports.createFriendship = exports.sendBadRequestResponse = exports.getUser = exports.getMe = void 0;
 const user_model_1 = __importStar(require("../models/user.model"));
 const conversation_model_1 = __importDefault(require("../models/conversation.model"));
-const config_1 = __importDefault(require("config"));
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const getMe = async (req) => {
@@ -91,13 +90,14 @@ const validatePassword = (password, hashedPassword) => {
     return bcrypt_1.default.compareSync(password, hashedPassword);
 };
 exports.validatePassword = validatePassword;
+const jwtSecretKey = process.env.NODE_ENV === "production" ? process.env.JWT_SECRET_KEY : "key";
 const makeToken = (data) => {
-    return jsonwebtoken_1.default.sign(data, config_1.default.get("jwtSecretKey"));
+    return jsonwebtoken_1.default.sign(data, jwtSecretKey);
 };
 exports.makeToken = makeToken;
 const verifyToken = (token) => {
     try {
-        const decoded = jsonwebtoken_1.default.verify(token, config_1.default.get("jwtSecretKey"));
+        const decoded = jsonwebtoken_1.default.verify(token, jwtSecretKey);
         return { isValid: true, data: decoded };
     }
     catch (ex) {

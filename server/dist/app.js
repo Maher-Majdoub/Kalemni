@@ -26,8 +26,11 @@ app.use("/api", api_routes_1.default);
 app.use(error_middleware_1.errorMiddleware);
 const httpServer = (0, http_1.createServer)(app);
 exports.httpServer = httpServer;
+const frontEndUrl = process.env.NODE_ENV === "production"
+    ? process.env.FRONT_END_URL
+    : "http://localhost:5173";
 const io = new socket_io_1.Server(httpServer, {
-    cors: { origin: ["http://localhost:5173"] },
+    cors: { origin: [frontEndUrl] },
 });
 exports.io = io;
 io.on("connect", socket_1.handleIoConnection);
