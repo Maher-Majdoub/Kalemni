@@ -19,6 +19,10 @@ if (process.env.NODE_ENV === "production") {
   app.use(compress);
 }
 
+app.get("/", (req, res) => {
+  res.send("api is working");
+});
+
 app.use("/api", api);
 
 app.use(errorMiddleware);

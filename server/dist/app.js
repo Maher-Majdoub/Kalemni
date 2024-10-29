@@ -22,6 +22,9 @@ if (process.env.NODE_ENV === "production") {
     app.use((0, helmet_1.default)());
     app.use(compression_1.default);
 }
+app.get("/", (req, res) => {
+    res.send("api is working");
+});
 app.use("/api", api_routes_1.default);
 app.use(error_middleware_1.errorMiddleware);
 const httpServer = (0, http_1.createServer)(app);
