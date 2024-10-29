@@ -1,4 +1,5 @@
 {
     "dbUrl": "dbUrl",
-    "jwtSecretKey": "jwtSecretKey"
+    "jwtSecretKey": "jwtSecretKey",
+    "frontEndUrl": "frontEndUrl"
 }

@@ -1,4 +1,5 @@
 {
     "dbUrl": "mongodb://localhost/Kalemni",
-    "jwtSecretKey": "key"
+    "jwtSecretKey": "key",
+    "frontEndUrl": "http://localhost:5173"
 }

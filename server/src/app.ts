@@ -4,6 +4,7 @@ import path from "path";
 import api from "./routes/api.routes";
 import helmet from "helmet";
 import compress from "compression";
+import config from "config";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { handleIoConnection } from "./socket";
@@ -26,7 +27,7 @@ app.use(errorMiddleware);
 const httpServer = createServer(app);
 
 const io = new Server(httpServer, {
-  cors: { origin: ["http://localhost:5173"] },
+  cors: { origin: [config.get("frontEndUrl")] },
 });
 
 io.on("connect", handleIoConnection);
