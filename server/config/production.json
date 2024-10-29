@@ -1,5 +1,0 @@
-{
-    "dbUrl": "dbUrl",
-    "jwtSecretKey": "jwtSecretKey",
-    "frontEndUrl": "frontEndUrl"
-}
