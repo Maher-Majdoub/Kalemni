@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema, Types } from "mongoose";
 import Joi from "joi";
-import { extractJoiErrors } from "../utils";
+import { extractJoiErrors } from "../controllers/utils";
 
 export interface IUserSnapshot {
   _id: Types.ObjectId;

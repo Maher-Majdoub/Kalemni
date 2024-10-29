@@ -6,7 +6,6 @@ import fs from "fs";
 const prepareStorage = (userId: string) => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      const conversationId = req.params["conversationId"];
       const rootDir = path.resolve(__dirname, "..");
       const targetDir = `uploads/profilePictures/`;
       const uploadDir = path.join(rootDir, targetDir);
@@ -24,7 +23,7 @@ const prepareStorage = (userId: string) => {
       );
     },
   });
-  return multer({ storage });
+  return multer({ storage, limits: { fileSize: 1 * 1024 * 1024 } });
 };
 
 export const uploadProfilePictureMiddleware = (
@@ -35,6 +34,10 @@ export const uploadProfilePictureMiddleware = (
   const body = req.body;
   const upload = prepareStorage(body.user._id);
   upload.single("picture")(req, res, (err) => {
+    if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({ message: "File is too large" });
+    }
+
     req.body = { ...req.body, ...body };
     next();
   });

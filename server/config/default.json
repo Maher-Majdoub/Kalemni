@@ -1,0 +1,4 @@
+{
+    "dbUrl": "mongodb://localhost/Kalemni",
+    "jwtSecretKey": "key"
+}

@@ -21,7 +21,7 @@ const prepareStorage = (messageType: string) => {
       cb(null, `${Date.now()}_${file.originalname}`);
     },
   });
-  return multer({ storage });
+  return multer({ storage, limits: { fileSize: 1 * 1024 * 1024 } });
 };
 
 const messageMiddleware = (req: Request, res: Response, next: NextFunction) => {
@@ -44,6 +44,10 @@ const messageMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const upload = prepareStorage(messageType);
 
   upload.single(messageType)(req, res, (err) => {
+    if (err instanceof multer.MulterError && err.code === "LIMIT_FILE_SIZE") {
+      return res.status(400).json({ message: "File is too large" });
+    }
+
     parseRequestBody(req);
     req.body.message.content = `${req.protocol}://${req.get(
       "host"

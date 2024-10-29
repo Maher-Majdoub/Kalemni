@@ -1,6 +1,6 @@
 import { io } from "./app";
 import { Socket } from "socket.io";
-import { verifyToken } from "./utils";
+import { verifyToken } from "./controllers/utils";
 import Conversation from "./models/conversation.model";
 import User, { userSnapshotFields } from "./models/user.model";
 
