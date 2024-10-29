@@ -3,7 +3,6 @@ import { ValidationError } from "joi";
 import { Types } from "mongoose";
 import User, { userSnapshotFields } from "../models/user.model";
 import Conversation from "../models/conversation.model";
-import config from "config";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -92,8 +91,11 @@ export const validatePassword = (password: string, hashedPassword: string) => {
   return bcrypt.compareSync(password, hashedPassword);
 };
 
+const jwtSecretKey =
+  process.env.NODE_ENV === "production" ? process.env.JWT_SECRET_KEY : "key";
+
 export const makeToken = (data: object) => {
-  return jwt.sign(data, config.get("jwtSecretKey"));
+  return jwt.sign(data, jwtSecretKey as string);
 };
 
 interface UserData {
@@ -102,7 +104,7 @@ interface UserData {
 
 export const verifyToken = (token: string) => {
   try {
-    const decoded = jwt.verify(token, config.get("jwtSecretKey"));
+    const decoded = jwt.verify(token, jwtSecretKey as string);
     return { isValid: true, data: decoded as UserData };
   } catch (ex) {
     return { isValid: false, data: {} as UserData };

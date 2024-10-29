@@ -1,4 +1,3 @@
-import config from "config";
 import winston from "winston";
 import mongoose from "mongoose";
 import { httpServer } from "./app";
@@ -15,7 +14,10 @@ winston.createLogger({
   ],
 });
 
-const dbUrl = config.get("dbUrl");
+const dbUrl =
+  process.env.NODE_ENV === "production"
+    ? process.env.DB_URL
+    : "mongodb://localhost/Kalemni";
 const port = process.env.PORT || 3000;
 
 const start = async () => {
