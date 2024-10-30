@@ -19,11 +19,11 @@ app.use(cors());
 //   app.use(compress);
 // }
 
-app.get("/", (req, res) => {
+app.get("/.netlify/functions", (req, res) => {
   res.send("api is working");
 });
 
-app.use("/api", api);
+app.use("/.netlify/functions/api", api);
 
 app.use(errorMiddleware);
 
