@@ -8,7 +8,7 @@ interface Props {
 const ColoredContainer = ({ children }: Props) => {
   return (
     <Box
-      minHeight="100vh"
+      minHeight="100dvh"
       display="flex"
       justifyContent="center"
       alignItems="center"

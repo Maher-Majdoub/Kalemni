@@ -26,7 +26,7 @@ const Conversation = ({ conversationId }: { conversationId: string }) => {
   if (!conversation)
     return (
       <Stack
-        height="100vh"
+        height="100dvh"
         flex={1}
         alignItems="center"
         justifyContent="center"
@@ -37,7 +37,7 @@ const Conversation = ({ conversationId }: { conversationId: string }) => {
 
   return (
     <>
-      <Stack height="100vh" flex={1} minHeight={0}>
+      <Stack height="100dvh" flex={1} minHeight={0}>
         <ConversationHeader
           conversation={conversation}
           showDetails={showDetails}

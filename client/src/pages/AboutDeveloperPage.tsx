@@ -32,7 +32,7 @@ const AboutDeveloperPage = () => {
       flex={1}
       spacing={4}
       padding={5}
-      minHeight="100vh"
+      minHeight="100dvh"
     >
       <Stack spacing={3}>
         <Typography variant="h4">Maher Majdoub</Typography>

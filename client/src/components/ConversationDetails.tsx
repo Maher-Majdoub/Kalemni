@@ -24,7 +24,7 @@ const ConversationDetails = ({ onClose = () => {} }: Props) => {
       flex={1}
       position="relative"
       minWidth="300px"
-      height="100vh"
+      height="100dvh"
       spacing={3}
     >
       <ConversationDetailsHeader onClose={onClose} />

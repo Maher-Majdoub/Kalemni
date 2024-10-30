@@ -20,7 +20,7 @@ const NavBarContainer = ({ children }: { children: ReactNode }) => {
 
   if (isPhone) {
     return (
-      <Stack height="100vh">
+      <Stack height="100dvh">
         <AppBar position="static">
           <Stack color="white" direction="row" alignItems="center" spacing={1}>
             <IconButton
@@ -47,7 +47,7 @@ const NavBarContainer = ({ children }: { children: ReactNode }) => {
   }
 
   return (
-    <Box height="100vh">
+    <Box height="100dvh">
       <Stack direction="row" height="100%">
         <SideBar />
         {children}
