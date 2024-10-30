@@ -32,7 +32,7 @@ const dbUrl =
     : "mongodb://localhost/Kalemni";
 const port = process.env.PORT || 3000;
 
-const start = async () => {
+export const start = async () => {
   await mongoose.connect(dbUrl as string);
   console.log("Connected to the database.");
   await httpServer.listen(port);

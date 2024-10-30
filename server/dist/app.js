@@ -8,8 +8,8 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const path_1 = __importDefault(require("path"));
 const api_routes_1 = __importDefault(require("./routes/api.routes"));
-const helmet_1 = __importDefault(require("helmet"));
-const compression_1 = __importDefault(require("compression"));
+// import helmet from "helmet";
+// import compress from "compression";
 const socket_io_1 = require("socket.io");
 const http_1 = require("http");
 const socket_1 = require("./socket");
@@ -18,10 +18,10 @@ const app = (0, express_1.default)();
 app.use("/uploads", express_1.default.static(path_1.default.join(__dirname, "uploads")));
 app.use(express_1.default.json());
 app.use((0, cors_1.default)());
-if (process.env.NODE_ENV === "production") {
-    app.use((0, helmet_1.default)());
-    app.use(compression_1.default);
-}
+// if (process.env.NODE_ENV === "production") {
+//   app.use(helmet());
+//   app.use(compress);
+// }
 app.get("/", (req, res) => {
     res.send("api is working");
 });

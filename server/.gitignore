@@ -3,3 +3,4 @@ dist
 uploads
 logfile.log
 functions
+.vercel
