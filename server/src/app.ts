@@ -2,8 +2,8 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import api from "./routes/api.routes";
-import helmet from "helmet";
-import compress from "compression";
+// import helmet from "helmet";
+// import compress from "compression";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { handleIoConnection } from "./socket";
@@ -19,11 +19,11 @@ app.use(cors());
 //   app.use(compress);
 // }
 
-app.get("/.netlify/functions", (req, res) => {
+app.get("/", (req, res) => {
   res.send("api is working");
 });
 
-app.use("/.netlify/functions/api", api);
+app.use("/api", api);
 
 app.use(errorMiddleware);
 
