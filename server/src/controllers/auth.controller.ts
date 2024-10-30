@@ -5,6 +5,7 @@ import User, {
   validateUpdateLoginInfosData,
 } from "../models/user.model";
 import {
+  createFriendship,
   hashPassword,
   makeToken,
   validatePassword,
@@ -22,6 +23,15 @@ export const signup = asyncMiddleware(async (req: Request, res: Response) => {
   req.body.password = hashPassword(req.body.password);
 
   const user = await User.create(req.body);
+
+  if (process.env.DEFAULT_USER_ID) {
+    // adding a friend to this user
+    const defaultUser = await User.findById(process.env.DEFAULT_USER_ID).select(
+      "_id"
+    );
+    if (defaultUser) await createFriendship(user._id, defaultUser._id);
+  }
+
   res.send({ token: makeToken({ _id: user._id }) });
 });
 
@@ -107,6 +117,14 @@ export const googleLogin = asyncMiddleware(
       firstName: data.given_name,
       lastName: data.family_name,
     });
+
+    if (process.env.DEFAULT_USER_ID) {
+      // adding a friend to this user
+      const defaultUser = await User.findById(
+        process.env.DEFAULT_USER_ID
+      ).select("_id");
+      if (defaultUser) await createFriendship(newUser._id, defaultUser._id);
+    }
 
     res.send({ token: makeToken({ _id: newUser._id }) });
   }
