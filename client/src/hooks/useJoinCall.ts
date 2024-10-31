@@ -29,6 +29,8 @@ const useJoinCall = ({
   onFullCall,
 }: Props) => {
   const joinCall = async (socket: Socket) => {
+    peers.clear();
+
     const localStream = await navigator.mediaDevices.getUserMedia({
       video: callType === "video",
       audio: true,
