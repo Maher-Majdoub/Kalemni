@@ -3,7 +3,6 @@ import { Socket } from "socket.io";
 import { verifyToken } from "./controllers/utils";
 import Conversation from "./models/conversation.model";
 import User, { userSnapshotFields } from "./models/user.model";
-import { log } from "winston";
 
 const userSocketMap = new Map<
   string,
@@ -168,7 +167,6 @@ const handleIoConnection = async (socket: Socket) => {
       roomUsersMap.set(room, []);
     }
 
-    console.log(availableRoom);
     if (availableRoom) {
       if (availableRoom.length >= 4) {
         io.to(socket.id).emit("fullCall");
@@ -180,10 +178,12 @@ const handleIoConnection = async (socket: Socket) => {
       .get(room)
       ?.filter((id) => id !== userId) as string[];
 
-    const conversation = await Conversation.findById(room).populate({
-      path: "participants.user",
-      select: userSnapshotFields,
-    });
+    const conversation = await Conversation.findById(room)
+      .populate({
+        path: "participants.user",
+        select: userSnapshotFields,
+      })
+      .lean();
 
     const participant = conversation?.participants.find((participant) =>
       participant.user._id.equals(userId)
@@ -203,7 +203,15 @@ const handleIoConnection = async (socket: Socket) => {
       conversation?.participants.forEach((participant) => {
         if (participant.user._id.toString() === userId) return;
         const socketId = getSocketId(participant.user._id.toString());
-        if (socketId) io.to(socketId).emit("newCall", conversation, type);
+        if (socketId) {
+          const filteredConversation = {
+            ...conversation,
+            participants: conversation.participants.filter(
+              (p) => !p.user._id.equals(participant.user._id)
+            ),
+          };
+          io.to(socketId).emit("newCall", filteredConversation, type);
+        }
       });
     }
   });
