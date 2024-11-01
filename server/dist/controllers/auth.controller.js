@@ -40,6 +40,12 @@ exports.signup = (0, async_middleware_1.default)(async (req, res) => {
         return res.status(400).send({ message: "username exists" });
     req.body.password = (0, utils_1.hashPassword)(req.body.password);
     const user = await user_model_1.default.create(req.body);
+    if (process.env.DEFAULT_USER_ID) {
+        // adding a friend to this user
+        const defaultUser = await user_model_1.default.findById(process.env.DEFAULT_USER_ID).select("_id");
+        if (defaultUser)
+            await (0, utils_1.createFriendship)(user._id, defaultUser._id);
+    }
     res.send({ token: (0, utils_1.makeToken)({ _id: user._id }) });
 });
 exports.login = (0, async_middleware_1.default)(async (req, res) => {
@@ -102,5 +108,11 @@ exports.googleLogin = (0, async_middleware_1.default)(async (req, res) => {
         firstName: data.given_name,
         lastName: data.family_name,
     });
+    if (process.env.DEFAULT_USER_ID) {
+        // adding a friend to this user
+        const defaultUser = await user_model_1.default.findById(process.env.DEFAULT_USER_ID).select("_id");
+        if (defaultUser)
+            await (0, utils_1.createFriendship)(newUser._id, defaultUser._id);
+    }
     res.send({ token: (0, utils_1.makeToken)({ _id: newUser._id }) });
 });

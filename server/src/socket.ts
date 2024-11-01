@@ -3,11 +3,14 @@ import { Socket } from "socket.io";
 import { verifyToken } from "./controllers/utils";
 import Conversation from "./models/conversation.model";
 import User, { userSnapshotFields } from "./models/user.model";
+import { log } from "winston";
 
 const userSocketMap = new Map<
   string,
   { socketId: string; isConnected: boolean }
 >();
+
+const roomUsersMap = new Map<string, string[]>();
 
 const getSocketId = (userId: string) => userSocketMap.get(userId)?.socketId;
 
@@ -33,6 +36,21 @@ const handleIoConnection = async (socket: Socket) => {
   }
 
   socket.on("disconnect", () => {
+    roomUsersMap.forEach((users, room) => {
+      const user = users.find((id) => id === userId);
+      if (user) {
+        roomUsersMap.set(
+          room,
+          users.filter((id) => id !== user)
+        );
+        roomUsersMap.get(room)?.forEach((id) => {
+          if (user === id) return;
+          const socketId = getSocketId(id);
+          if (socketId) io.to(socketId).emit("participantLeft", userId);
+        });
+      }
+    });
+
     const conf = userSocketMap.get(userId);
     if (conf) {
       conf.isConnected = false;
@@ -144,16 +162,29 @@ const handleIoConnection = async (socket: Socket) => {
   );
 
   socket.on("join", async (room, type) => {
-    const availableRoom = io.sockets.adapter.rooms.get(room);
-    if (availableRoom && availableRoom.size >= 4) {
-      io.to(socket.id).emit("fullCall");
-      return;
+    const availableRoom = roomUsersMap.get(room);
+
+    if (!availableRoom) {
+      roomUsersMap.set(room, []);
     }
+
+    console.log(availableRoom);
+    if (availableRoom) {
+      if (availableRoom.length >= 4) {
+        io.to(socket.id).emit("fullCall");
+        return;
+      }
+    }
+
+    const currUsers = roomUsersMap
+      .get(room)
+      ?.filter((id) => id !== userId) as string[];
 
     const conversation = await Conversation.findById(room).populate({
       path: "participants.user",
       select: userSnapshotFields,
     });
+
     const participant = conversation?.participants.find((participant) =>
       participant.user._id.equals(userId)
     );
@@ -161,14 +192,17 @@ const handleIoConnection = async (socket: Socket) => {
     if (!participant) return;
 
     const user = participant.user;
-    socket.join(room);
-    socket.to(room).emit("newParticipant", user);
+    roomUsersMap.set(room, [...currUsers, userId]);
 
-    if (io.sockets.adapter.rooms.get(room)?.size === 1) {
+    currUsers.forEach((id) => {
+      const socketId = getSocketId(id);
+      if (socketId) io.to(socketId).emit("newParticipant", user);
+    });
+
+    if (roomUsersMap.get(room)?.length === 1) {
       conversation?.participants.forEach((participant) => {
+        if (participant.user._id.toString() === userId) return;
         const socketId = getSocketId(participant.user._id.toString());
-        if (socketId === socket.id) return;
-
         if (socketId) io.to(socketId).emit("newCall", conversation, type);
       });
     }
@@ -190,7 +224,7 @@ const handleIoConnection = async (socket: Socket) => {
 
   socket.on("iceCandidate", (room, id, candidate) => {
     const socketId = getSocketId(id);
-    if (socketId) socket.to(room).emit("iceCandidate", userId, candidate);
+    if (socketId) socket.to(socketId).emit("iceCandidate", userId, candidate);
   });
 
   socket.on("videoOffer", (id, offer) => {
@@ -204,16 +238,37 @@ const handleIoConnection = async (socket: Socket) => {
   });
 
   socket.on("toggleEnableAudio", (room, isAudioEnabled) => {
-    socket.to(room).emit("toggleEnableAudio", userId, isAudioEnabled);
+    roomUsersMap.get(room)?.forEach((user) => {
+      if (user === userId) return;
+      const socketId = getSocketId(user);
+      if (socketId)
+        io.to(socketId).emit("toggleEnableAudio", userId, isAudioEnabled);
+    });
   });
 
   socket.on("toggleEnableVideo", (room, isVideoEnabled) => {
-    socket.to(room).emit("toggleEnableVideo", userId, isVideoEnabled);
+    roomUsersMap.get(room)?.forEach((user) => {
+      if (user === userId) return;
+      const socketId = getSocketId(user);
+      if (socketId)
+        io.to(socketId).emit("toggleEnableVideo", userId, isVideoEnabled);
+    });
   });
 
   socket.on("leaveCall", (room) => {
-    socket.leave(room);
-    socket.to(room).emit("participantLeft", userId);
+    const oldUsers = roomUsersMap.get(room);
+
+    if (!oldUsers) return;
+    roomUsersMap.set(
+      room,
+      oldUsers.filter((user) => user !== userId)
+    );
+
+    oldUsers.forEach((user) => {
+      if (user === userId) return;
+      const socketId = getSocketId(user);
+      if (socketId) io.to(socketId).emit("participantLeft", userId);
+    });
   });
 };
 
