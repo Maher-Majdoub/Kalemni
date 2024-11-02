@@ -4,3 +4,5 @@ uploads
 logfile.log
 functions
 .vercel
+.env
+.env.production
