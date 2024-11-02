@@ -37,6 +37,21 @@ const getSocketId = (userId) => userSocketMap.get(userId)?.socketId;
 exports.getSocketId = getSocketId;
 const isConnected = (userId) => !!userSocketMap.get(userId)?.isConnected;
 exports.isConnected = isConnected;
+const handleUserLeftCall = (userId) => {
+    roomUsersMap.forEach((users, room) => {
+        const user = users.find((id) => id === userId);
+        if (user) {
+            roomUsersMap.set(room, users.filter((id) => id !== user));
+            roomUsersMap.get(room)?.forEach((id) => {
+                if (user === id)
+                    return;
+                const socketId = getSocketId(id);
+                if (socketId)
+                    app_1.io.to(socketId).emit("participantLeft", userId);
+            });
+        }
+    });
+};
 const handleIoConnection = async (socket) => {
     const authToken = socket.handshake.auth.authToken;
     const { isValid, data } = (0, utils_1.verifyToken)(authToken);
@@ -53,19 +68,7 @@ const handleIoConnection = async (socket) => {
             app_1.io.to(socketId).emit("userConnected", user.getSnapshot());
     }
     socket.on("disconnect", () => {
-        roomUsersMap.forEach((users, room) => {
-            const user = users.find((id) => id === userId);
-            if (user) {
-                roomUsersMap.set(room, users.filter((id) => id !== user));
-                roomUsersMap.get(room)?.forEach((id) => {
-                    if (user === id)
-                        return;
-                    const socketId = getSocketId(id);
-                    if (socketId)
-                        app_1.io.to(socketId).emit("participantLeft", userId);
-                });
-            }
-        });
+        handleUserLeftCall(userId);
         const conf = userSocketMap.get(userId);
         if (conf) {
             conf.isConnected = false;
@@ -151,7 +154,6 @@ const handleIoConnection = async (socket) => {
         if (!availableRoom) {
             roomUsersMap.set(room, []);
         }
-        console.log(availableRoom);
         if (availableRoom) {
             if (availableRoom.length >= 4) {
                 app_1.io.to(socket.id).emit("fullCall");
@@ -161,10 +163,12 @@ const handleIoConnection = async (socket) => {
         const currUsers = roomUsersMap
             .get(room)
             ?.filter((id) => id !== userId);
-        const conversation = await conversation_model_1.default.findById(room).populate({
+        const conversation = await conversation_model_1.default.findById(room)
+            .populate({
             path: "participants.user",
             select: user_model_1.userSnapshotFields,
-        });
+        })
+            .lean();
         const participant = conversation?.participants.find((participant) => participant.user._id.equals(userId));
         if (!participant)
             return;
@@ -180,8 +184,13 @@ const handleIoConnection = async (socket) => {
                 if (participant.user._id.toString() === userId)
                     return;
                 const socketId = getSocketId(participant.user._id.toString());
-                if (socketId)
-                    app_1.io.to(socketId).emit("newCall", conversation, type);
+                if (socketId) {
+                    const filteredConversation = {
+                        ...conversation,
+                        participants: conversation.participants.filter((p) => !p.user._id.equals(participant.user._id)),
+                    };
+                    app_1.io.to(socketId).emit("newCall", filteredConversation, type);
+                }
             });
         }
     });
@@ -233,17 +242,7 @@ const handleIoConnection = async (socket) => {
         });
     });
     socket.on("leaveCall", (room) => {
-        const oldUsers = roomUsersMap.get(room);
-        if (!oldUsers)
-            return;
-        roomUsersMap.set(room, oldUsers.filter((user) => user !== userId));
-        oldUsers.forEach((user) => {
-            if (user === userId)
-                return;
-            const socketId = getSocketId(user);
-            if (socketId)
-                app_1.io.to(socketId).emit("participantLeft", userId);
-        });
+        handleUserLeftCall(userId);
     });
 };
 exports.handleIoConnection = handleIoConnection;
