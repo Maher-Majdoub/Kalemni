@@ -16,6 +16,23 @@ const getSocketId = (userId: string) => userSocketMap.get(userId)?.socketId;
 const isConnected = (userId: string) =>
   !!userSocketMap.get(userId)?.isConnected;
 
+const handleUserLeftCall = (userId: string) => {
+  roomUsersMap.forEach((users, room) => {
+    const user = users.find((id) => id === userId);
+    if (user) {
+      roomUsersMap.set(
+        room,
+        users.filter((id) => id !== user)
+      );
+      roomUsersMap.get(room)?.forEach((id) => {
+        if (user === id) return;
+        const socketId = getSocketId(id);
+        if (socketId) io.to(socketId).emit("participantLeft", userId);
+      });
+    }
+  });
+};
+
 const handleIoConnection = async (socket: Socket) => {
   const authToken = socket.handshake.auth.authToken;
   const { isValid, data } = verifyToken(authToken);
@@ -35,21 +52,7 @@ const handleIoConnection = async (socket: Socket) => {
   }
 
   socket.on("disconnect", () => {
-    roomUsersMap.forEach((users, room) => {
-      const user = users.find((id) => id === userId);
-      if (user) {
-        roomUsersMap.set(
-          room,
-          users.filter((id) => id !== user)
-        );
-        roomUsersMap.get(room)?.forEach((id) => {
-          if (user === id) return;
-          const socketId = getSocketId(id);
-          if (socketId) io.to(socketId).emit("participantLeft", userId);
-        });
-      }
-    });
-
+    handleUserLeftCall(userId);
     const conf = userSocketMap.get(userId);
     if (conf) {
       conf.isConnected = false;
@@ -264,19 +267,7 @@ const handleIoConnection = async (socket: Socket) => {
   });
 
   socket.on("leaveCall", (room) => {
-    const oldUsers = roomUsersMap.get(room);
-
-    if (!oldUsers) return;
-    roomUsersMap.set(
-      room,
-      oldUsers.filter((user) => user !== userId)
-    );
-
-    oldUsers.forEach((user) => {
-      if (user === userId) return;
-      const socketId = getSocketId(user);
-      if (socketId) io.to(socketId).emit("participantLeft", userId);
-    });
+    handleUserLeftCall(userId);
   });
 };
 
