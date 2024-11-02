@@ -34,9 +34,9 @@ const MessageInputSection = ({
   };
 
   const onSubmit = () => {
-    const message = messageInputRef.current?.value;
+    const message = messageInputRef.current?.value.trim();
 
-    if (!message) return;
+    if (!message || !messageInputRef.current) return;
 
     onSendMessage({ content: message, type: "text" });
     messageInputRef.current.value = "";
