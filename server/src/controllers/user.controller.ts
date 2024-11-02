@@ -19,9 +19,7 @@ export const updateProfileInfos = asyncMiddleware(
 
 export const updateProfilePicture = asyncMiddleware(
   async (req: Request, res: Response) => {
-    const filePath = `${req.protocol}://${req.get(
-      "host"
-    )}/uploads/profilePictures/${req.file?.filename}`;
+    const filePath = req.body.filePath;
 
     await User.findByIdAndUpdate(req.body.user._id, {
       profilePicture: filePath,

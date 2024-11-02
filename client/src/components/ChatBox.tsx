@@ -4,12 +4,11 @@ import useSendMessage, { IMessageInput } from "../hooks/useSendMessage";
 import MessagesList from "./MessagesList";
 import { IConversation } from "../hooks/useConversation";
 import { IUserSnapshot } from "../hooks/useFriends";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSocketContext } from "../providers/SocketProvider";
 import useUserEnteredConversation from "../hooks/useUserEnteredConversation";
 import { useDropzone } from "react-dropzone";
 import mime from "mime";
-import DropArea from "./DropArea";
 import TypingIndicator from "./TypingIndicator/TypingIndicator";
 import { toast } from "react-toastify";
 
@@ -20,8 +19,6 @@ interface Props {
 const ChatBox = ({ conversation }: Props) => {
   const { sendMessage } = useSendMessage(conversation._id);
   const socket = useSocketContext();
-  const [showDropArea, setShowDropArea] = useState(false);
-
   useUserEnteredConversation(conversation._id);
 
   useEffect(() => {
@@ -65,13 +62,6 @@ const ChatBox = ({ conversation }: Props) => {
         }
       });
     },
-
-    onDragEnter() {
-      if (!showDropArea) setShowDropArea(true);
-    },
-    onDragLeave() {
-      if (showDropArea) setShowDropArea(false);
-    },
   });
 
   if (!conversation) return <p>wait....</p>;
@@ -83,7 +73,6 @@ const ChatBox = ({ conversation }: Props) => {
 
   return (
     <Stack padding={2} flex={1} {...getRootProps()} overflow="hidden">
-      {showDropArea && <DropArea />}
       <MessagesList conversation={conversation} />
       {typingUsers.map((user) => (
         <Stack key={user._id} direction="row" alignItems="center" spacing={1}>
