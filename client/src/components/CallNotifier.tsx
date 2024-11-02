@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 import { MdCallEnd, MdCall } from "react-icons/md";
 import { useSocketContext } from "../providers/SocketProvider";
 import { IConversation } from "../hooks/useConversation";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   getConversationName,
   getConversationPicture,
@@ -24,6 +24,7 @@ const CallNotifier = () => {
     type: string | null;
   }>({ conversation: null, type: null });
   const navigate = useNavigate();
+  const page = useLocation().pathname.split("/")[1];
 
   useEffect(() => {
     socket?.on("newCall", (conversation, type) => {
@@ -32,13 +33,13 @@ const CallNotifier = () => {
   }, [socket]);
 
   const acceptOffer = () => {
-    if (!conversation) return;
+    if (!conversation || page === "call") return;
     const route = `/call/${conversation._id}?callType=${type}`;
     setCall({ conversation: null, type: null });
     navigate(route);
   };
 
-  if (!conversation) return <></>;
+  if (!conversation || page === "call") return <></>;
 
   return (
     <Snackbar open anchorOrigin={{ vertical: "top", horizontal: "center" }}>

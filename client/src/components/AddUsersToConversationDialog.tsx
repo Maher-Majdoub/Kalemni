@@ -129,7 +129,7 @@ const AddUsersToConversationDialog = ({ showDialog, onClose }: Props) => {
             }}
           >
             {isAddUsersToConversationPending ? (
-              <CircularProgress />
+              <CircularProgress size={25} />
             ) : (
               "Add Users"
             )}

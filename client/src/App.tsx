@@ -10,7 +10,10 @@ import OnlineUsersProvider from "./providers/OnlineFriendsProvider";
 import WindowTypeProvider from "./providers/WindowTypeProvider";
 import "react-toastify/dist/ReactToastify.css";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 0 } },
+});
+
 const theme = createTheme({
   typography: {
     fontFamily: '"DM Sans", sans-serif',

@@ -67,7 +67,7 @@ const Call = () => {
   }, [availablePeers, isLaptop]);
 
   useEffect(() => {
-    return cleanup(socket);
+    return () => cleanup(socket);
   }, []);
 
   if (!socket) return <p>wait...</p>;

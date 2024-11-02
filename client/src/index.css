@@ -14,8 +14,7 @@ input {
 }
 
 audio {
-    width: 250px;
-    height: 50px;
+    height: 40px;
 }
 
 img {
@@ -28,7 +27,8 @@ video {
     height: 100%;
     width: 100%;
     object-fit: cover;
-    display: block
+    display: block;
+    transform: scaleX(-1);
 }
 
 .logo {

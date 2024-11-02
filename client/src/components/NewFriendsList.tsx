@@ -9,9 +9,10 @@ const NewFriendsList = () => {
     <GridDisplayer>
       {isGetNewFriendsPending &&
         [1, 2, 3].map((id) => <UserCardSkeleton key={id} />)}
-      {newFriends?.map((friend) => (
-        <NewFriendCard user={friend} key={friend._id} />
-      ))}
+      {newFriends &&
+        newFriends.map((friend) => (
+          <NewFriendCard user={friend} key={friend._id} />
+        ))}
     </GridDisplayer>
   );
 };

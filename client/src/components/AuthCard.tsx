@@ -74,7 +74,7 @@ const AuthCard = ({
                       value: true,
                     },
                     minLength: {
-                      value: 5,
+                      value: 3,
                       message: "Last name length should be between 3 and 20",
                     },
                     maxLength: {
@@ -108,7 +108,7 @@ const AuthCard = ({
               {...register("password", {
                 required: { message: "This field is required", value: true },
                 minLength: {
-                  value: 3,
+                  value: 5,
                   message: "Password length should be between 5 and 30",
                 },
                 maxLength: {

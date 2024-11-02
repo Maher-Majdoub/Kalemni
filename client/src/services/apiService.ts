@@ -13,7 +13,7 @@ class ApiService<TData, TInput = object> {
   handleException = (ex: AxiosError) => {
     if (ex.status === 401) {
       toast.info("Session expired");
-      localStorage.setItem("auth-token", "");
+      localStorage.removeItem("auth-token");
       router.navigate("/login");
     }
 

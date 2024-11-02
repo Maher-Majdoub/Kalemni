@@ -10,6 +10,14 @@ const LoginPage = () => {
   const { login, isLoginSuccess, isLoginPending } = useLogin();
   const { sendGoogleLogin, isSendGoolgeLoginSuccess } = useSendGoogleLogin();
 
+  const handleLogin = (data: any) => {
+    const filteredData = {
+      username: data.username.trim(),
+      password: data.password.trim(),
+    };
+    login(filteredData);
+  };
+
   const navigate = useNavigate();
   const googleLogin = useGoogleLogin({
     onSuccess: async (data) => {
@@ -24,7 +32,7 @@ const LoginPage = () => {
   return (
     <ColoredContainer>
       <AuthCard
-        onSubmit={login}
+        onSubmit={(data) => handleLogin(data)}
         isLoading={isLoginPending}
         onGoogleLogin={googleLogin}
       />

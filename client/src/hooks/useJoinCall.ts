@@ -1,5 +1,6 @@
 import { Socket } from "socket.io-client";
 import { IUserSnapshot } from "./useFriends";
+import { useCallback } from "react";
 
 export interface IPeer {
   user: IUserSnapshot;
@@ -20,6 +21,35 @@ interface Props {
 
 const peers: Map<string, IPeer> = new Map();
 
+const turnServerUsername = import.meta.env.VITE_TURN_USERNAME;
+const turnServerCredential = import.meta.env.VITE_TURN_CREDENTIAL;
+
+const iceServers = [
+  {
+    urls: "stun:stun.relay.metered.ca:80",
+  },
+  {
+    urls: "turn:global.relay.metered.ca:80",
+    username: turnServerUsername,
+    credential: turnServerCredential,
+  },
+  {
+    urls: "turn:global.relay.metered.ca:80?transport=tcp",
+    username: turnServerUsername,
+    credential: turnServerCredential,
+  },
+  {
+    urls: "turn:global.relay.metered.ca:443",
+    username: turnServerUsername,
+    credential: turnServerCredential,
+  },
+  {
+    urls: "turns:global.relay.metered.ca:443?transport=tcp",
+    username: turnServerUsername,
+    credential: turnServerCredential,
+  },
+];
+
 const useJoinCall = ({
   conversationId,
   callType,
@@ -28,152 +58,178 @@ const useJoinCall = ({
   onUpdateRemoteMedias,
   onFullCall,
 }: Props) => {
-  const joinCall = async (socket: Socket) => {
-    peers.clear();
-
-    const localStream = await navigator.mediaDevices.getUserMedia({
-      video: callType === "video",
-      audio: true,
-    });
-
-    localStreamRef.current = localStream;
-
-    if (localVideoRef.current) localVideoRef.current.srcObject = localStream;
-
-    socket.emit("join", conversationId, callType ? callType : "audio");
-
-    socket.on("newParticipant", async (user: IUserSnapshot) => {
-      const pc = new RTCPeerConnection();
-      peers.set(user._id, {
-        user,
-        connection: pc,
-        stream: null,
-        videoEnabled: false,
-        audioEnabled: false,
-      });
-
-      localStream
-        .getTracks()
-        .forEach((track) => pc.addTrack(track, localStream));
-
-      pc.ontrack = (e) => {
-        peers.set(user._id, {
-          user,
-          connection: pc,
-          stream: e.streams[0],
-          audioEnabled: e.streams[0].getAudioTracks().length !== 0,
-          videoEnabled: e.streams[0].getVideoTracks().length !== 0,
+  const joinCall = useCallback(
+    async (socket: Socket) => {
+      try {
+        const localStream = await navigator.mediaDevices.getUserMedia({
+          video: callType === "video",
+          audio: true,
         });
-        onUpdateRemoteMedias(Array.from(peers.values()));
-      };
 
-      pc.onicecandidate = (e) => {
-        if (e.candidate)
-          socket.emit("iceCandidate", conversationId, user._id, e.candidate);
-      };
+        localStreamRef.current = localStream;
 
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      socket.emit("offer", user._id, offer);
-    });
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = localStream;
+        }
 
-    socket.on("offer", async (user, offer) => {
-      const pc = new RTCPeerConnection();
-      peers.set(user._id, {
-        user,
-        connection: pc,
-        stream: null,
-        audioEnabled: false,
-        videoEnabled: false,
-      });
+        socket.emit("join", conversationId, callType || "audio");
 
-      localStream
-        .getTracks()
-        .forEach((track) => pc.addTrack(track, localStream));
+        socket.on("newParticipant", async (user: IUserSnapshot) => {
+          if (!peers.has(user._id)) {
+            const pc = new RTCPeerConnection({ iceServers });
+            peers.set(user._id, {
+              user,
+              connection: pc,
+              stream: null,
+              videoEnabled: false,
+              audioEnabled: false,
+            });
 
-      pc.ontrack = (e) => {
-        peers.set(user._id, {
-          user,
-          connection: pc,
-          stream: e.streams[0],
-          audioEnabled: e.streams[0].getAudioTracks().length !== 0,
-          videoEnabled: e.streams[0].getVideoTracks().length !== 0,
+            localStream
+              .getTracks()
+              .forEach((track) => pc.addTrack(track, localStream));
+
+            pc.ontrack = (e) => {
+              peers.set(user._id, {
+                user,
+                connection: pc,
+                stream: e.streams[0],
+                audioEnabled: e.streams[0].getAudioTracks().length !== 0,
+                videoEnabled: e.streams[0].getVideoTracks().length !== 0,
+              });
+              onUpdateRemoteMedias(Array.from(peers.values()));
+            };
+
+            pc.onicecandidate = (e) => {
+              if (e.candidate) {
+                socket.emit(
+                  "iceCandidate",
+                  conversationId,
+                  user._id,
+                  e.candidate
+                );
+              }
+            };
+
+            const offer = await pc.createOffer();
+            await pc.setLocalDescription(offer);
+            socket.emit("offer", user._id, offer);
+          }
         });
-        onUpdateRemoteMedias(Array.from(peers.values()));
-      };
 
-      pc.onicecandidate = (e) => {
-        if (e.candidate)
-          socket.emit("iceCandidate", conversationId, user._id, e.candidate);
-      };
+        socket.on("offer", async (user, offer) => {
+          if (!peers.has(user._id)) {
+            const pc = new RTCPeerConnection({ iceServers });
+            peers.set(user._id, {
+              user,
+              connection: pc,
+              stream: null,
+              audioEnabled: false,
+              videoEnabled: false,
+            });
 
-      await pc.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      socket.emit("answer", user._id, answer);
-    });
+            localStream
+              .getTracks()
+              .forEach((track) => pc.addTrack(track, localStream));
 
-    socket.on("answer", (id, answer) => {
-      const pc = peers.get(id);
-      pc?.connection.setRemoteDescription(new RTCSessionDescription(answer));
-    });
+            pc.ontrack = (e) => {
+              peers.set(user._id, {
+                user,
+                connection: pc,
+                stream: e.streams[0],
+                audioEnabled: e.streams[0].getAudioTracks().length !== 0,
+                videoEnabled: e.streams[0].getVideoTracks().length !== 0,
+              });
+              onUpdateRemoteMedias(Array.from(peers.values()));
+            };
 
-    socket.on("iceCandidate", (id, candidate) => {
-      const pc = peers.get(id);
-      pc?.connection.addIceCandidate(new RTCIceCandidate(candidate));
-    });
+            pc.onicecandidate = (e) => {
+              if (e.candidate) {
+                socket.emit(
+                  "iceCandidate",
+                  conversationId,
+                  user._id,
+                  e.candidate
+                );
+              }
+            };
 
-    socket.on("videoOffer", async (id, offer) => {
-      const peer = peers.get(id);
-      if (!peer) return;
+            try {
+              await pc.setRemoteDescription(new RTCSessionDescription(offer));
+              const answer = await pc.createAnswer();
+              await pc.setLocalDescription(answer);
+              socket.emit("answer", user._id, answer);
+            } catch (error) {
+              console.error("Failed to set remote description:", error);
+            }
+          }
+        });
 
-      await peer.connection.setRemoteDescription(
-        new RTCSessionDescription(offer)
-      );
-      const answer = await peer.connection.createAnswer();
-      await peer.connection.setLocalDescription(answer);
-      socket.emit("videoAnswer", id, answer);
+        socket.on("answer", async (id, answer) => {
+          const pc = peers.get(id);
+          if (pc) {
+            try {
+              await pc.connection.setRemoteDescription(
+                new RTCSessionDescription(answer)
+              );
+            } catch (error) {
+              console.error("Failed to set remote description:", error);
+            }
+          }
+        });
 
-      peers.set(id, peer);
-      onUpdateRemoteMedias(Array.from(peers.values()));
-    });
+        socket.on("iceCandidate", (id, candidate) => {
+          const pc = peers.get(id);
+          if (pc) {
+            pc.connection
+              .addIceCandidate(new RTCIceCandidate(candidate))
+              .catch((error) => {
+                console.error("Failed to add ice candidate:", error);
+              });
+          }
+        });
 
-    socket.on("videoAnswer", async (id, answer) => {
-      const peer = peers.get(id);
-      if (!peer) return;
+        socket.on("toggleEnableVideo", (userId, isVideoEnabled) => {
+          const peer = peers.get(userId);
+          if (peer) {
+            peer.videoEnabled = isVideoEnabled;
+            peers.set(userId, peer);
+            onUpdateRemoteMedias(Array.from(peers.values()));
+          }
+        });
 
-      await peer.connection.setRemoteDescription(
-        new RTCSessionDescription(answer)
-      );
-    });
+        socket.on("toggleEnableAudio", (userId, isAudioEnabled) => {
+          const peer = peers.get(userId);
+          if (peer) {
+            peer.audioEnabled = isAudioEnabled;
+            peers.set(userId, peer);
+            onUpdateRemoteMedias(Array.from(peers.values()));
+          }
+        });
 
-    socket.on("toggleEnableVideo", (userId, isVideoEnabled) => {
-      const peer = peers.get(userId);
-      if (!peer) return;
-      peer.videoEnabled = isVideoEnabled;
-      peers.set(userId, peer);
-      onUpdateRemoteMedias(Array.from(peers.values()));
-    });
+        socket.on("participantLeft", (id) => {
+          const pc = peers.get(id);
+          if (pc) {
+            pc.connection.close();
+            peers.delete(id);
+            onUpdateRemoteMedias(Array.from(peers.values()));
+          }
+        });
 
-    socket.on("toggleEnableAudio", (userId, isAudioEnabled) => {
-      const peer = peers.get(userId);
-      if (!peer) return;
-      peer.audioEnabled = isAudioEnabled;
-      peers.set(userId, peer);
-      onUpdateRemoteMedias(Array.from(peers.values()));
-    });
-
-    socket.on("participantLeft", (id) => {
-      const pc = peers.get(id);
-      if (pc) {
-        pc.connection.close();
-        peers.delete(id);
-        onUpdateRemoteMedias(Array.from(peers.values()));
+        socket.on("fullCall", onFullCall);
+      } catch (error) {
+        console.error("Error joining call:", error);
       }
-    });
-
-    socket.on("fullCall", onFullCall);
-  };
+    },
+    [
+      conversationId,
+      callType,
+      localStreamRef,
+      localVideoRef,
+      onUpdateRemoteMedias,
+      onFullCall,
+    ]
+  );
 
   const toggleEnableVideo = async ({
     socket,
@@ -184,34 +240,36 @@ const useJoinCall = ({
   }) => {
     if (!localStreamRef.current) return;
 
-    if (!enableVideo && localStreamRef.current?.getVideoTracks().length === 0) {
-      const videoStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: false,
-      });
-      videoStream.getTracks().forEach((track) => {
-        localStreamRef.current?.addTrack(track);
-      });
+    try {
+      const currentVideoTracks = localStreamRef.current.getVideoTracks();
 
-      peers.forEach(async (peer) => {
-        if (!localStreamRef.current) return;
+      if (enableVideo && currentVideoTracks.length === 0) {
+        const videoStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
+        });
+        videoStream.getTracks().forEach((track) => {
+          localStreamRef.current?.addTrack(track);
+        });
 
-        peer.connection.addTrack(
-          videoStream.getVideoTracks()[0],
-          localStreamRef.current
-        );
+        peers.forEach(async (peer) => {
+          if (!localStreamRef.current) return;
 
-        const offer = await peer.connection.createOffer();
-        await peer.connection.setLocalDescription(offer);
-
-        socket?.emit("videoOffer", peer.user._id, offer);
-      });
+          const newVideoTrack = videoStream.getVideoTracks()[0];
+          if (newVideoTrack) {
+            peer.connection.addTrack(newVideoTrack, localStreamRef.current);
+            const offer = await peer.connection.createOffer();
+            await peer.connection.setLocalDescription(offer);
+            socket.emit("videoOffer", peer.user._id, offer);
+          }
+        });
+      } else {
+        currentVideoTracks.forEach((track) => (track.enabled = !enableVideo));
+      }
+      socket.emit("toggleEnableVideo", conversationId, !enableVideo);
+    } catch (error) {
+      console.error("Error toggling video:", error);
     }
-    socket?.emit("toggleEnableVideo", conversationId, !enableVideo);
-
-    localStreamRef.current
-      .getVideoTracks()
-      .forEach((track) => (track.enabled = !enableVideo));
   };
 
   const toggleEnableAudio = ({
@@ -221,29 +279,30 @@ const useJoinCall = ({
     socket: Socket;
     enableAudio: boolean;
   }) => {
-    socket?.emit("toggleEnableAudio", conversationId, !enableAudio);
+    socket.emit("toggleEnableAudio", conversationId, !enableAudio);
 
-    if (localStreamRef.current)
+    if (localStreamRef.current) {
       localStreamRef.current
         .getAudioTracks()
         .forEach((track) => (track.enabled = !enableAudio));
+    }
   };
 
   const cleanup = (socket: Socket | null) => {
-    return () => {
-      localStreamRef.current?.getTracks().forEach((track) => track.stop());
-      peers.clear();
-      socket?.off("newParticipant");
-      socket?.off("offer");
-      socket?.off("answer");
-      socket?.off("iceCandidate");
-      socket?.off("participantLeft");
-      socket?.off("videoOffer");
-      socket?.off("videoAnswer");
-      socket?.off("toggleEnableVideo");
-      socket?.off("toggleEnableAudio");
-      socket?.emit("leaveCall", conversationId);
-    };
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach((track) => track.stop());
+    }
+    socket?.off("newParticipant");
+    socket?.off("offer");
+    socket?.off("answer");
+    socket?.off("iceCandidate");
+    socket?.off("participantLeft");
+    socket?.off("fullCall");
+    socket?.off("videoOffer");
+    socket?.off("videoAnswer");
+    socket?.off("toggleEnableVideo");
+    socket?.off("toggleEnableAudio");
+    socket?.emit("leaveCall", conversationId);
   };
 
   return { joinCall, toggleEnableVideo, toggleEnableAudio, cleanup };

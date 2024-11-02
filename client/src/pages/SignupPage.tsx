@@ -17,6 +17,17 @@ export const SignupPage = () => {
 
   const navigate = useNavigate();
 
+  const handleSignup = (data: any) => {
+    const filteredData = {
+      firstName: data.firstName.trim(),
+      lastName: data.lastName.trim(),
+      username: data.userName.trim(),
+      password: data.password.trim(),
+    };
+
+    signup(filteredData);
+  };
+
   useEffect(() => {
     if (isSignupSuccess || isSendGoolgeLoginSuccess) navigate("/");
   }, [isSignupSuccess, isSendGoolgeLoginSuccess]);
@@ -24,7 +35,7 @@ export const SignupPage = () => {
   return (
     <ColoredContainer>
       <AuthCard
-        onSubmit={signup}
+        onSubmit={handleSignup}
         isLoading={isSignupPending}
         isSignup
         onGoogleLogin={googleLogin}

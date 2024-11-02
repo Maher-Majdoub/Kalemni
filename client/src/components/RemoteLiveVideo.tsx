@@ -20,7 +20,7 @@ const RemoteLiveVideo = ({ peer, muted }: Props) => {
 
   return (
     <Box position="relative" height="100%" width="100%">
-      <video autoPlay ref={videoRef} muted />
+      <video autoPlay playsInline ref={videoRef} muted />
       <audio autoPlay ref={audioRef} muted={muted} />
       <Box
         position="absolute"
