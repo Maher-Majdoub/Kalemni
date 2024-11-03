@@ -17,10 +17,6 @@ class ApiService<TData, TInput = object> {
       router.navigate("/login");
     }
 
-    if (ex.status === 500) {
-      toast.error("Oops! Something went wrong. Please try refreshing the page");
-    }
-
     if (ex.code === "ERR_NETWORK") {
       router.navigate("/server-down");
     }

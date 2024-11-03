@@ -21,7 +21,7 @@ export const SignupPage = () => {
     const filteredData = {
       firstName: data.firstName.trim(),
       lastName: data.lastName.trim(),
-      username: data.userName.trim(),
+      username: data.username.trim(),
       password: data.password.trim(),
     };
 
