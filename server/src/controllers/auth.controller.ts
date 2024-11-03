@@ -105,7 +105,11 @@ export const googleLogin = asyncMiddleware(
           Authorization: `Bearer ${accessToken}`,
         },
       }
-    ).then((res) => res.json());
+    )
+      .then((res) => res.json())
+      .catch((ex) => {
+        return res.status(500).send({ message: "Something Went Wrong" });
+      });
 
     const user = await User.findOne({ sub: data.sub });
 
